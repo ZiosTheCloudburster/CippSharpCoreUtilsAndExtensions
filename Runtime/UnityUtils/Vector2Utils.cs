@@ -22,7 +22,7 @@ namespace CippSharp.Core
         }
 
         /// <summary>
-        /// Converts a vector2 to array 
+        /// Converts a vector2 to float array 
         /// </summary>
         /// <param name="vector"></param>
         /// <returns></returns>

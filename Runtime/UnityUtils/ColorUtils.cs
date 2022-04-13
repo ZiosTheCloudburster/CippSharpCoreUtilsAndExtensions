@@ -1,9 +1,8 @@
 ﻿
-using UnityEngine;
-
 namespace CippSharp.Core
 {
     using Color = UnityEngine.Color;
+    using Vector4 = UnityEngine.Vector4;
     
     public static class ColorUtils
     {

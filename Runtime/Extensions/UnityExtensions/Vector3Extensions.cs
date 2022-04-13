@@ -66,15 +66,15 @@ namespace CippSharp.Core.Extensions
 			return Vector3Utils.Closest(point, array);
 		}
 
-		/// <summary>
-		/// UnScale vector
-		/// </summary>
-		/// <param name="a"></param>
-		/// <param name="b"></param>
-		public static void UnScale(this ref Vector3 a, Vector3 b)
-		{
-			Vector3Utils.UnScale(ref a, b);
-		}
+//		/// <summary>
+//		/// UnScale vector
+//		/// </summary>
+//		/// <param name="a"></param>
+//		/// <param name="b"></param>
+//		public static void UnScale(ref Vector3 a, Vector3 b)
+//		{
+//			Vector3Utils.UnScale(ref a, b);
+//		}
 
 		/// <summary>
 		/// This vector contains any value with 0?
@@ -86,38 +86,38 @@ namespace CippSharp.Core.Extensions
 			return Vector3Utils.Contains(v, 0);
 		}
 		
-		#region Set
-		
-		/// <summary>
-		/// Set Vector3 X
-		/// </summary>
-		/// <param name="input"></param>
-		/// <param name="value"></param>
-		public static void SetX(this ref Vector3 input, float value)
-		{
-			Vector3Utils.SetX(ref input, value);
-		}
-		
-		/// <summary>
-		/// Set Vector3 Y
-		/// </summary>
-		/// <param name="input"></param>
-		/// <param name="value"></param>
-		public static void SetY(this ref Vector3 input, float value)
-		{
-			Vector3Utils.SetY(ref input, value);
-		}
-		
-		/// <summary>
-		/// Set Vector3 Z
-		/// </summary>
-		/// <param name="input"></param>
-		/// <param name="value"></param>
-		public static void SetZ(this ref Vector3 input, float value)
-		{
-			Vector3Utils.SetZ(ref input, value);
-		}
-		
-		#endregion
+//		#region Set
+//		
+//		/// <summary>
+//		/// Set Vector3 X
+//		/// </summary>
+//		/// <param name="input"></param>
+//		/// <param name="value"></param>
+//		public static void SetX(this ref Vector3 input, float value)
+//		{
+//			Vector3Utils.SetX(ref input, value);
+//		}
+//		
+//		/// <summary>
+//		/// Set Vector3 Y
+//		/// </summary>
+//		/// <param name="input"></param>
+//		/// <param name="value"></param>
+//		public static void SetY(this ref Vector3 input, float value)
+//		{
+//			Vector3Utils.SetY(ref input, value);
+//		}
+//		
+//		/// <summary>
+//		/// Set Vector3 Z
+//		/// </summary>
+//		/// <param name="input"></param>
+//		/// <param name="value"></param>
+//		public static void SetZ(this ref Vector3 input, float value)
+//		{
+//			Vector3Utils.SetZ(ref input, value);
+//		}
+//		
+//		#endregion
 	}
 }
