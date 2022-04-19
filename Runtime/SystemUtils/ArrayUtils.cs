@@ -94,7 +94,7 @@ namespace CippSharp.Core
             }
             catch (Exception e)
             {
-                Debug.LogError(LogName+ $"{nameof(TryToObjectArray)} failed. Caught exception: {e.Message}.");
+                Debug.LogError(LogName+ $"{nameof(TryToObjectArray)} failed to cast object to object[]. Caught exception: {e.Message}.");
                 array = null;
                 return false;
             }
@@ -124,22 +124,69 @@ namespace CippSharp.Core
         #endregion
         
         #region Array Typed → To Conversions
+        
+        /// <summary>
+        /// From list of Keys and Values to Dictionary
+        /// 
+        /// Warning:
+        /// - keys and values MUST have the same length
+        /// - keys MUST NOT have duplicates
+        /// </summary>
+        /// <param name="keys"></param>
+        /// <param name="values"></param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <returns></returns>
+        public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(List<TKey> keys, List<TValue> values)
+        {
+            Dictionary<TKey, TValue> newDictionary = new Dictionary<TKey, TValue>();
+            
+            for (int i = 0; i < keys.Count; i++)
+            {
+                newDictionary[keys[i]] = values[i];
+            }
+
+            return newDictionary;
+        }
 
         /// <summary>
         /// To Dictionary from an IEnumerable of KeyValuePairs of same Types as Dictionary
         /// </summary>
         /// <param name="array"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <typeparam name="F"></typeparam>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
         /// <returns></returns>
-        public static Dictionary<T, F> ToDictionary<T, F>(IEnumerable<KeyValuePair<T, F>> array)
+        public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>> array)
         {
-            Dictionary<T, F> newDictionary = new Dictionary<T, F>();
+            Dictionary<TKey, TValue> newDictionary = new Dictionary<TKey, TValue>();
             foreach (var keyValuePair in array)
             {
                 newDictionary[keyValuePair.Key] = keyValuePair.Value;
             }
             return newDictionary;
+        }
+        
+        
+        /// <summary>
+        /// From list of Keys and Values to Array of KeyValuePairs
+        ///
+        /// Warning: keys and values MUST have the same length
+        /// </summary>
+        /// <param name="keys"></param>
+        /// <param name="values"></param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <returns></returns>
+        public static KeyValuePair<TKey, TValue>[] ToArray<TKey, TValue>(List<TKey> keys, List<TValue> values)
+        {
+            int length = keys.Count;
+            KeyValuePair<TKey, TValue>[] newArray = new KeyValuePair<TKey, TValue>[length];
+            for (int i = 0; i < length; i++)
+            {
+                newArray[i] = new KeyValuePair<TKey, TValue>(keys[i], values[i]);
+            }
+
+            return newArray;
         }
         
         #endregion
@@ -367,6 +414,22 @@ namespace CippSharp.Core
         
         #endregion
 
+        #region → Has Duplicates
+        
+        /// <summary>
+        /// Has Duplicates?
+        /// </summary>
+        /// <param name="enumerable"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool HasDuplicates<T>(IEnumerable<T> enumerable) 
+        {
+            HashSet<T> hs = new HashSet<T>();
+            return enumerable.Any(t => !hs.Add(t));
+        }
+
+        #endregion
+        
         #region → Index Of Element
 
         /// <summary>
@@ -655,7 +718,7 @@ namespace CippSharp.Core
         
         //strings are char[]... so arrays can have strings utils
         #region → Sub Array
-        
+
         /// <summary>
         /// Same as substring, but for arrays.
         /// </summary>
@@ -664,9 +727,22 @@ namespace CippSharp.Core
         /// <param name="length"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static T[] SubArray<T>(T[] array, int index, int length)
+        public static T[] SubArrayOrDefault<T>(T[] array, int index, int length)
         {
-            return TrySubArray(array, index, length, out T[] subArray) ? subArray : null;
+            return TrySubArray(array, index, length, out T[] subArray) ? subArray : default;
+        }
+
+        /// <summary>
+        /// Same as substring, but for arrays.
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <param name="index"></param>
+        /// <param name="length"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T[] SubArrayOrDefault<T>(ICollection<T> collection, int index, int length)
+        {
+            return TrySubArray(collection.ToArray(), index, length, out T[] subArray) ? subArray : default;
         }
 
         /// <summary>

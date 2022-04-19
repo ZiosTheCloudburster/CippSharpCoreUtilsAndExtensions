@@ -441,7 +441,7 @@ namespace CippSharp.Core.Extensions
         /// <returns></returns>
         public static T[] SubArray<T>(this T[] array, int index, int length)
         {
-            return ArrayUtils.SubArray(array, index, length);
+            return ArrayUtils.SubArrayOrDefault(array, index, length);
         }
         
         #endregion
