@@ -100,7 +100,7 @@ namespace CippSharp.Core.Extensions
         /// <returns></returns>
         public static void For<T>(this T[] array, ForRefAction<T> action)
         {
-            ArrayUtils.For(ref array, action);
+            ArrayUtils.For(array, action);
         }
 
         /// <summary>
@@ -112,7 +112,7 @@ namespace CippSharp.Core.Extensions
         /// <returns></returns>
         public static void For<T>(this List<T> list, ForRefAction<T> action)
         {
-            ArrayUtils.For(ref list, action);
+            ArrayUtils.For(list, action);
         }
 
         /// <summary>

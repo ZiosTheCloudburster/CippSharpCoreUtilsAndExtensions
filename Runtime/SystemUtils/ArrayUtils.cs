@@ -1,20 +1,303 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Debug = UnityEngine.Debug;
 
 namespace CippSharp.Core
 {
-    using Debug = UnityEngine.Debug;
-    
     /// <summary>
     /// Hold static helpful methods for arrays.
     /// </summary>
-    public static partial class ArrayUtils
+    public static class ArrayUtils
     {
- 
-
-        #region Contains / Find
+        private static readonly string LogName = $"[{nameof(ArrayUtils)}]: ";
         
+        //This part is dedicated to topmost generic arrays methods
+        #region Array Generic → To Conversions and IsArray
+
+        /// <summary>
+        /// Retrieve if context type is an array.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static bool IsArray(Type type)
+        {
+            return type.IsArray;
+        }
+
+        /// <summary>
+        /// Retrieve if context object is an array.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public static bool IsArray(object context)
+        {
+            return IsArray(context.GetType());
+        }
+        
+        
+        /// <summary>
+        /// Try to get element at index of object[]
+        /// </summary>
+        /// <param name="array"></param>
+        /// <param name="index"></param>
+        /// <param name="element"></param>
+        /// <returns>success</returns>
+        public static bool TryGetValue(object[] array, int index, out object element)
+        {
+            try
+            {
+                element = array[index];
+                return true;
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(LogName+ $"{nameof(TryGetValue)} failed to get value. Caught exception: {e.Message}.");
+                element = null;
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Try to set value
+        /// </summary>
+        /// <param name="array"></param>
+        /// <param name="index"></param>
+        /// <param name="element"></param>
+        /// <returns>success</returns>
+        public static bool TrySetValue(object[] array, int index, object element)
+        {
+            try
+            {
+                array[index] = element;
+                return true;
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(LogName+ $"{nameof(TrySetValue)} failed to set value. Caught exception: {e.Message}.");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Try to cast an object to object[]
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="array"></param>
+        /// <returns>success</returns>
+        public static bool TryToObjectArray(object value, out object[] array)
+        {
+            try
+            {
+                array = ((Array)value).Cast<object>().ToArray();
+                return true;
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(LogName+ $"{nameof(TryToObjectArray)} failed. Caught exception: {e.Message}.");
+                array = null;
+                return false;
+            }
+        }
+        
+        /// <summary>
+        /// Try to cast a generic Array to object[]
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="array"></param>
+        /// <returns>success</returns>
+        public static bool TryToObjectArray(Array value, out object[] array)
+        {
+            try
+            {
+                array = (value).Cast<object>().ToArray();
+                return true;
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(LogName+ $"{nameof(TryToObjectArray)} failed. Caught exception: {e.Message}.");
+                array = null;
+                return false;
+            }
+        }
+
+        #endregion
+        
+        #region Array Typed → To Conversions
+
+        /// <summary>
+        /// To Dictionary from an IEnumerable of KeyValuePairs of same Types as Dictionary
+        /// </summary>
+        /// <param name="array"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="F"></typeparam>
+        /// <returns></returns>
+        public static Dictionary<T, F> ToDictionary<T, F>(IEnumerable<KeyValuePair<T, F>> array)
+        {
+            Dictionary<T, F> newDictionary = new Dictionary<T, F>();
+            foreach (var keyValuePair in array)
+            {
+                newDictionary[keyValuePair.Key] = keyValuePair.Value;
+            }
+            return newDictionary;
+        }
+        
+        #endregion
+
+        #region Array → Iterators
+        
+        #region For
+          
+        /// <summary>
+        /// Perform a referred for iteration on an array
+        /// </summary>
+        /// <param name="array"></param>
+        /// <param name="action"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static void For<T>(T[] array, ForRefAction<T> action)
+        {
+            for (int i = 0; i < array.Length; i++)
+            {
+                T element = array[i];
+                action.Invoke(ref element, i);
+                array[i] = element;
+            }
+        }
+
+        /// <summary>
+        /// Perform a referred for iteration on a list
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="action"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static void For<T>(List<T> list, ForRefAction<T> action)
+        {
+            for (int i = 0; i < list.Count; i++)
+            {
+                T element = list[i];
+                action.Invoke(ref element, i);
+                list[i] = element;
+            }
+        }
+
+        /// <summary>
+        /// Perform a referred for iteration on enumerable
+        /// </summary>
+        /// <param name="enumerable"></param>
+        /// <param name="action"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static IEnumerable<T> For<T>(IEnumerable<T> enumerable, ForRefAction<T> action)
+        {
+            T[] array = enumerable.ToArray();
+            For(array, action);
+            return array;
+        }
+
+        #endregion
+        
+        #region For Each
+        
+        /// <summary>
+        /// Perform a foreach on an array, using System.Array.Foreach method
+        /// </summary>
+        /// <param name="array"></param>
+        /// <param name="action"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static void ForEach<T>(T[] array, Action<T> action)
+        {
+            Array.ForEach(array, action);
+        }
+
+        /// <summary>
+        /// Perform a foreach on a list
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="action"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static void ForEach<T>(List<T> list, Action<T> action)
+        {
+            foreach (var element in list)
+            {
+                action.Invoke(element);
+            }
+        }
+
+        /// <summary>
+        /// Perform a foreach on a collection
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <param name="action"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static ICollection<T> ForEach<T>(ICollection<T> collection, Action<T> action)
+        {
+            foreach (var element in collection)
+            {
+                action.Invoke(element);
+            }
+            
+            return collection;
+        }
+        
+        /// <summary>
+        /// Perform a foreach on an enumerable
+        /// </summary>
+        /// <param name="enumerable"></param>
+        /// <param name="action"></param>
+        /// <typeparam name="T"></typeparam>
+        public static IEnumerable<T> ForEach<T>(IEnumerable<T> enumerable, Action<T> action)
+        {
+            ICollection<T> collection = (enumerable is ICollection<T> c) ? c : enumerable.ToArray();
+            return ForEach(collection, action);
+        }
+        
+        #endregion
+
+        #endregion
+
+        #region Array → Methods
+
+        #region → Add
+
+        /// <summary>
+        /// Add an element to a list only if it is new
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="element"></param>
+        /// <typeparam name="T"></typeparam>
+        public static void AddIfNew<T>(List<T> list, T element)
+        {
+            if (!list.Contains(element))
+            {
+                list.Add(element);
+            }
+        }
+
+        #endregion
+        
+        #region → Clear
+
+        /// <summary>
+        /// Clear not null elements from an enumerable
+        /// </summary>
+        /// <param name="enumerable"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        [Obsolete("2021/08/14 → Use SelectNotNullElements instead. This will be removed in future versions.")]
+        public static IEnumerable<T> ClearNullEntries<T>(IEnumerable<T> enumerable) where T : class
+        {
+            return SelectNotNullElements(enumerable);
+        }
+
+        #endregion
+
+        #region → Any, Contains or Find Element
+
         /// <summary>
         /// Similar to Any of <see> <cref>System.linq</cref> </see>
         /// it retrieve a valid index of the first element matching the predicate.
@@ -44,15 +327,27 @@ namespace CippSharp.Core
             index = IndexOf(array, predicate);
             return index > -1;
         }
-        
+
         /// <summary>
-        /// Find Method
+        /// The enumerable contains an element with predicate?
+        /// </summary>
+        /// <param name="enumerable"></param>
+        /// <param name="predicate"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool Contains<T>(IEnumerable<T> enumerable, Predicate<T> predicate)
+        {
+            return enumerable.Any(predicate.Invoke);
+        }
+
+        /// <summary>
+        /// Find element in collection
         /// </summary>
         /// <param name="collection"></param>
         /// <param name="predicate"></param>
         /// <param name="result"></param>
         /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
+        /// <returns>success</returns>
         public static bool Find<T>(ICollection<T> collection, Predicate<T> predicate, out T result)
         {
             foreach (var element in collection)
@@ -69,10 +364,10 @@ namespace CippSharp.Core
             result = default;
             return false;
         }
-
-        #endregion
         
-        #region Index Of
+        #endregion
+
+        #region → Index Of Element
 
         /// <summary>
         /// Retrieve index if array contains an element with given predicate.
@@ -131,8 +426,8 @@ namespace CippSharp.Core
         }
 
         #endregion
-
-        #region Is Null or Empty
+        
+        #region → Is Null or Empty
         
         /// <summary>
         /// Returns true if the given array is null or empty
@@ -191,8 +486,8 @@ namespace CippSharp.Core
         }
 
         #endregion
-
-        #region Is Valid Index
+        
+        #region → Is Valid Index
 
         /// <summary>
         /// Returns true if the given index is the array range.
@@ -231,8 +526,9 @@ namespace CippSharp.Core
         }
         
         #endregion
-
-        #region Random Element
+        
+        
+        #region → Random Element
 
         /// <summary>
         /// Retrieve a random element in array.
@@ -260,7 +556,7 @@ namespace CippSharp.Core
 
         #endregion
         
-        #region Remove Element
+        #region → Remove Element
 
         /// <summary>
         /// Remove an array element at the given index and retrieve the resulting array.
@@ -303,42 +599,45 @@ namespace CippSharp.Core
 
         #endregion
         
-        #region Select
+        
+        #region → Select
 
         /// <summary>
         /// Select If util. Similar to System.linq Select but with a predicate to check.
         /// </summary>
-        /// <param name="array"></param>
+        /// <param name="enumerable"></param>
         /// <param name="predicate"></param>
         /// <param name="func"></param>
         /// <typeparam name="T"></typeparam>
         /// <typeparam name="F"></typeparam>
         /// <returns></returns>
-        public static IEnumerable<F> SelectIf<T, F>(IEnumerable<T> array, Predicate<T> predicate, Func<T, F> func)
+        public static IEnumerable<F> SelectIf<T, F>(IEnumerable<T> enumerable, Predicate<T> predicate, Func<T, F> func)
         {
-            return (from element in array where predicate.Invoke(element) select func.Invoke(element));
+            return (from element in enumerable where predicate.Invoke(element) select func.Invoke(element));
         }
         
         /// <summary>
         /// Select Many If predicate. Similar to System.linq Select but with a predicate to check.
         /// </summary>
-        /// <param name="array"></param>
+        /// <param name="enumerable"></param>
         /// <param name="predicate"></param>
         /// <param name="func"></param>
         /// <typeparam name="T"></typeparam>
         /// <typeparam name="F"></typeparam>
         /// <returns></returns>
-        public static IEnumerable<F> SelectManyIf<T, F>(IEnumerable<T> array, Predicate<T> predicate, Func<T, IEnumerable<F>> func)
+        public static IEnumerable<F> SelectManyIf<T, F>(IEnumerable<T> enumerable, Predicate<T> predicate, Func<T, IEnumerable<F>> func)
         {
-            List<F> fs = new List<F>();
-            foreach (var element in array)
+            List<F> many = new List<F>();
+            foreach (var element in enumerable)
             {
-                if (predicate.Invoke(element))
+                if (!predicate.Invoke(element))
                 {
-                    fs.AddRange(func.Invoke(element));
+                    continue;
                 }
+                
+                many.AddRange(func.Invoke(element));
             }
-            return fs;
+            return many;
         }
         
         /// <summary>
@@ -354,7 +653,8 @@ namespace CippSharp.Core
 
         #endregion
         
-        #region Sub Array
+        //strings are char[]... so arrays can have strings utils
+        #region → Sub Array
         
         /// <summary>
         /// Same as substring, but for arrays.
@@ -366,14 +666,7 @@ namespace CippSharp.Core
         /// <returns></returns>
         public static T[] SubArray<T>(T[] array, int index, int length)
         {
-            if (TrySubArray(array, index, length, out T[] subArray))
-            {
-                return subArray;
-            }
-            else
-            {
-                return null;
-            }
+            return TrySubArray(array, index, length, out T[] subArray) ? subArray : null;
         }
 
         /// <summary>
@@ -384,7 +677,7 @@ namespace CippSharp.Core
         /// <param name="length"></param>
         /// <param name="subArray"></param>
         /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
+        /// <returns>success</returns>
         public static bool TrySubArray<T>(T[] array, int index, int length, out T[] subArray)
         {
             try
@@ -396,29 +689,33 @@ namespace CippSharp.Core
             }
             catch (Exception e)
             {
-                Debug.LogError(e.Message);
+                Debug.LogError(LogName+$"{nameof(TrySubArray)} failed to get SubArray. Caught exception: {e.Message}.");
                 subArray = null;
                 return false;
             }
         }
         
         #endregion
-
-        #region Take
+        
+        #region → Take
 
         /// <summary>
         /// Take until count!
         /// If there aren't enough elements only the few (less than count) are returned.
         /// </summary>
-        /// <param name="collection"></param>
+        /// <param name="enumerable"></param>
         /// <param name="count"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static IEnumerable<T> TakeUntil<T>(IEnumerable<T> collection, int count)
+        public static IEnumerable<T> TakeUntil<T>(IEnumerable<T> enumerable, int count)
         {
-            return collection.Count() <= count ? collection : collection.Take(count);
+            ICollection<T> collection = enumerable is ICollection<T> c ? c : enumerable.ToArray();
+            int collectionCount = collection.Count;
+            return collectionCount <= count ? collection : collection.Take(count);
         }
 
+        #endregion
+        
         #endregion
     }
 }
