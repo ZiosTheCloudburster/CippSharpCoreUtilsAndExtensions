@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 namespace CippSharp.Core
 {
-    internal static class Constants
+    internal static class UtilsConstants
     {
         public const HideFlags underTheHoodFlags = HideFlags.DontSaveInEditor | HideFlags.HideInHierarchy | HideFlags.HideInInspector;
         

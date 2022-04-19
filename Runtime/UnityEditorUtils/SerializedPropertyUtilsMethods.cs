@@ -50,7 +50,7 @@ namespace CippSharp.Core
             SerializedProperty iterator = serializedObject.GetIterator();
             for (bool enterChildren = true; iterator.NextVisible(enterChildren); enterChildren = false)
             {
-                using (new EditorGUI.DisabledScope(Constants.ScriptSerializedPropertyName == iterator.propertyPath))
+                using (new EditorGUI.DisabledScope(UtilsConstants.ScriptSerializedPropertyName == iterator.propertyPath))
                 {
                     properties.Add(iterator.Copy());
                 }

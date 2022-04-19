@@ -38,7 +38,7 @@ namespace CippSharp.Core
 					PropertyInfo inspectorModeInfo = typeof(SerializedObject).GetProperty(inspectorModePropertyName, BindingFlags.NonPublic | BindingFlags.Instance);
 					SerializedObject serializedObject = new SerializedObject(target);
 					inspectorModeInfo.SetValue(serializedObject, InspectorMode.Debug, null);
-					SerializedProperty localIdProp =serializedObject.FindProperty(Constants.LocalIdentfierInFilePropertyName);
+					SerializedProperty localIdProp =serializedObject.FindProperty(UtilsConstants.LocalIdentfierInFilePropertyName);
 					return localIdProp.intValue;
 				}
 				else

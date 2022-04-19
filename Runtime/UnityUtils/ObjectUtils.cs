@@ -453,7 +453,7 @@ namespace CippSharp.Core
 					try
 					{
 						PropertyInfo property;
-						if (ReflectionUtils.HasProperty(target, Constants.EnabledPropertyName, out property))
+						if (ReflectionUtils.HasProperty(target, UtilsConstants.EnabledPropertyName, out property))
 						{
 							property.SetValue(target, value, null);
 						}
