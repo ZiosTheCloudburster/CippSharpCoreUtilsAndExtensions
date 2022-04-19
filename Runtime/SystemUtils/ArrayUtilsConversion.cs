@@ -1,13 +1,134 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace CippSharp.Core
 {
+    using Array = System.Array;
+    using Type = System.Type;
+    using Exception = System.Exception;
+    using Debug = UnityEngine.Debug;
+    
     /// <summary>
     /// Hold static helpful methods for arrays.
     /// </summary>
     public static partial class ArrayUtils
     {
-        #region Conversions
+        private static readonly string LogName = $"[{nameof(ArrayUtils)}]: ";
+//        private const string ArrayGenericError = "Failed for ";
+        
+        
+        //This part is dedicated to topmost generic arrays methods
+        #region Array Generic → Conversions and IsArray
+
+        /// <summary>
+        /// Retrieve if context type is an array.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static bool IsArray(Type type)
+        {
+            return type.IsArray;
+        }
+
+        /// <summary>
+        /// Retrieve if context object is an array.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public static bool IsArray(object context)
+        {
+            return IsArray(context.GetType());
+        }
+        
+        
+        /// <summary>
+        /// Try to get element at index of object[]
+        /// </summary>
+        /// <param name="array"></param>
+        /// <param name="index"></param>
+        /// <param name="element"></param>
+        /// <returns>success</returns>
+        public static bool TryGetValue(object[] array, int index, out object element)
+        {
+            try
+            {
+                element = array[index];
+                return true;
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(LogName+ $"{nameof(TryGetValue)} failed to get value. Caught exception: {e.Message}.");
+                element = null;
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Try to set value
+        /// </summary>
+        /// <param name="array"></param>
+        /// <param name="index"></param>
+        /// <param name="element"></param>
+        /// <returns>success</returns>
+        public static bool TrySetValue(object[] array, int index, object element)
+        {
+            try
+            {
+                array[index] = element;
+                return true;
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(LogName+ $"{nameof(TrySetValue)} failed to set value. Caught exception: {e.Message}.");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Try to cast an object to object[]
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="array"></param>
+        /// <returns>success</returns>
+        public static bool TryToObjectArray(object value, out object[] array)
+        {
+            try
+            {
+                array = ((Array)value).Cast<object>().ToArray();
+                return true;
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(LogName+ $"{nameof(TryToObjectArray)} failed. Caught exception: {e.Message}.");
+                array = null;
+                return false;
+            }
+        }
+        
+        /// <summary>
+        /// Try to cast a generic Array to object[]
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="array"></param>
+        /// <returns>success</returns>
+        public static bool TryToObjectArray(Array value, out object[] array)
+        {
+            try
+            {
+                array = (value).Cast<object>().ToArray();
+                return true;
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(LogName+ $"{nameof(TryToObjectArray)} failed. Caught exception: {e.Message}.");
+                array = null;
+                return false;
+            }
+        }
+
+        #endregion
+        
+        #region Array To → Conversions
 
         /// <summary>
         /// To Dictionary from an IEnumerable of KeyValuePairs of same Types as Dictionary
@@ -27,92 +148,5 @@ namespace CippSharp.Core
         }
         
         #endregion
-
-        #region Is Null or Empty
-
-
-//        /// <summary>
-//        /// Returns true if the given list asset is null or empty
-//        /// </summary>
-//        /// <param name="asset"></param>
-//        /// <typeparam name="T"></typeparam>
-//        /// <returns></returns>
-//        public static bool IsNullOrEmpty<T>(AListDataAsset<T> asset)
-//        {
-//            return asset == null || asset.Count < 1;
-//        }
-//
-//        /// <summary>
-//        /// Returns true if the given list container is null or empty
-//        /// </summary>
-//        /// <param name="listContainer"></param>
-//        /// <typeparam name="T"></typeparam>
-//        /// <returns></returns>
-//        public static bool IsNullOrEmpty<T>(ListContainer<T> listContainer)
-//        {
-//            return listContainer == null || listContainer.Count < 1;
-//        }
-//        
-//        /// <summary>
-//        /// Returns true if the given array container is null or empty
-//        /// </summary>
-//        /// <param name="arrayContainer"></param>
-//        /// <typeparam name="T"></typeparam>
-//        /// <returns></returns>
-//        public static bool IsNullOrEmpty<T>(ArrayContainer<T> arrayContainer)
-//        {
-//            return arrayContainer == null || arrayContainer.Length < 1;
-//        }
-
-        #endregion
-        
-        // #region Iterators
-        //
-        //
-        //
-        // #endregion
-
-        // #region Resize Array of UnityEngine.Object
-        //
-        // public delegate T AddObjectDelegate<T>(int newIndex) where T : Object;
-        // public delegate void RemoveObjectDelegate<T>(T element) where T : Object;
-        //
-        // /// <summary>
-        // /// Resize an array of unity engine objects by adding or destroying elements.
-        // /// </summary>
-        // /// <param name="list"></param>
-        // /// <param name="newLength"></param>
-        // /// <param name="addObjectDelegate"></param>
-        // /// <param name="removeObjectDelegate"></param>
-        // public static void Resize<T>(ref List<T> list, int newLength, AddObjectDelegate<T> addObjectDelegate, RemoveObjectDelegate<T> removeObjectDelegate) where T : Object
-        // {
-        //     int count = list.Count;
-        //     if (count == newLength)
-        //     {
-        //         return;   
-        //     }
-        //     else if (count > newLength)
-        //     {
-        //         //remove items
-        //         for (int i = count - 1; i >= newLength; i--)
-        //         {
-        //             T element = list[i];
-        //             removeObjectDelegate.Invoke(element);
-        //             list.RemoveAt(i);
-        //         }
-        //     }
-        //     else if (count < newLength)
-        //     {
-        //         //add items
-        //         int delta = newLength - count;
-        //         for (int i = 0; i < delta; i++)
-        //         {
-        //             T newElement = addObjectDelegate.Invoke(count + i);
-        //             list.Add(newElement);   
-        //         }
-        //     }
-        // }
-        //
-        // #endregion
     }
 }

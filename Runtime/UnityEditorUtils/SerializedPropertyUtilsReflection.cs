@@ -114,7 +114,7 @@ namespace CippSharp.Core
                     string data = splitResults[i + 1];
                     if (int.TryParse(data.Replace("data[", string.Empty).Replace("]", string.Empty), out int w))
                     {
-                        if (ArrayUtils.IsArray(contextObject) && ArrayUtils.TryCast(contextObject, out object[] array))
+                        if (ArrayUtils.IsArray(contextObject) && ArrayUtils.TryToObjectArray(contextObject, out object[] array))
                         {
                             if (ArrayUtils.TryGetValue(array, w, out object element))
                             {
@@ -237,7 +237,7 @@ namespace CippSharp.Core
                         string data = splitResults[i + 1];
                         if (int.TryParse(data.Replace("data[", string.Empty).Replace("]", string.Empty), out int w))
                         {
-                            if (ArrayUtils.IsArray(contextObject) && ArrayUtils.TryCast(contextObject, out object[] array))
+                            if (ArrayUtils.IsArray(contextObject) && ArrayUtils.TryToObjectArray(contextObject, out object[] array))
                             {
                                 if (ArrayUtils.TryGetValue(array, w, out object element))
                                 {
@@ -336,7 +336,7 @@ namespace CippSharp.Core
 				            if (int.TryParse(parsingString, out int w))
 				            {
 					            if (ArrayUtils.IsArray(previousContext) &&
-					                ArrayUtils.TryCast(previousContext, out object[] array))
+					                ArrayUtils.TryToObjectArray(previousContext, out object[] array))
 					            {
 						            object element = tmpParents[i + 1];
 						            if (ArrayUtils.TrySetValue(array, w, element))
