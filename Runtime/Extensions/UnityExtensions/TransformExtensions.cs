@@ -8,6 +8,8 @@ using Object = UnityEngine.Object;
 
 namespace CippSharp.Core.Extensions
 {
+	using TransformUtils = CippSharp.Core.Utils.TransformUtils;
+	
 	public static class TransformExtensions
 	{
 		#region Create Child

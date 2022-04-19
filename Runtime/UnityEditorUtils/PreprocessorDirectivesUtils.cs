@@ -1,7 +1,7 @@
 ﻿#if UNITY_EDITOR
 using UnityEditor;
 
-namespace CippSharp.Core
+namespace CippSharp.Core.EditorUtils
 {
     /// <summary>
     /// Simple edit of scripting define symbols in player settings

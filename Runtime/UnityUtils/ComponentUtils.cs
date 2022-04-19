@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace CippSharp.Core
+namespace CippSharp.Core.Utils
 {
 	public static class ComponentUtils
 	{
@@ -99,7 +99,7 @@ namespace CippSharp.Core
 				addedComponents.Add(componentToAdd);
 
 #if UNITY_EDITOR
-				EditorObjectUtils.SetDirty(inspectedComponent.gameObject);
+				UnityEditor.EditorUtility.SetDirty(inspectedComponent.gameObject);
 #endif
 			}
 
@@ -143,7 +143,7 @@ namespace CippSharp.Core
 				}
 
 #if UNITY_EDITOR
-				EditorObjectUtils.SetDirty(gameObject);
+				UnityEditor.EditorUtility.SetDirty(gameObject);
 #endif
 			}
 		}

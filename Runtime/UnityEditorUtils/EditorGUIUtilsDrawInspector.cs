@@ -3,7 +3,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace CippSharp.Core
+namespace CippSharp.Core.EditorUtils
 {
     public static partial class EditorGUIUtils
     {

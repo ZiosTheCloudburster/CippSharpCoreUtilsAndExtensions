@@ -3,6 +3,8 @@ using System.Reflection;
 
 namespace CippSharp.Core.Extensions
 {
+    using ReflectionUtils = CippSharp.Core.Utils.ReflectionUtils;
+    
     public static class ReflectionExtensions
     {
         /// <summary>

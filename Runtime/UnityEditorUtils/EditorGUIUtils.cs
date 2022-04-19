@@ -5,7 +5,7 @@
 using System.Reflection;
 using UnityEditor;
 
-namespace CippSharp.Core
+namespace CippSharp.Core.EditorUtils
 {
     public static partial class EditorGUIUtils
     {

@@ -14,7 +14,7 @@ using UnityEditor;
 using Object = UnityEngine.Object;
 
 
-namespace CippSharp.Core
+namespace CippSharp.Core.Utils
 {
     public static class AssetDatabaseUtils
     {

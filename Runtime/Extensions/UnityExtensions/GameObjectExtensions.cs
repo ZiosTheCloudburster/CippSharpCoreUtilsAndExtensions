@@ -8,6 +8,9 @@ using Object = UnityEngine.Object;
 
 namespace CippSharp.Core.Extensions
 {
+	using TransformUtils = CippSharp.Core.Utils.TransformUtils;
+	using GameObjectUtils = CippSharp.Core.Utils.GameObjectUtils;
+	
 	public static class GameObjectExtensions
 	{
 		#region Create Child (from TransformUtils)

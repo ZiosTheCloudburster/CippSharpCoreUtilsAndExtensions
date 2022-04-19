@@ -3,7 +3,7 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace CippSharp.Core
+namespace CippSharp.Core.EditorUtils
 {
     /// <summary>
     ///

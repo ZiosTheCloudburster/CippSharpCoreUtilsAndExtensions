@@ -4,10 +4,10 @@
 
 #if UNITY_EDITOR
 using System.Collections.Generic;
-using CippSharp.Core;
+using CippSharp.Core.EditorUtils;
 using UnityEditor;
 
-namespace CippSharpEditor.Core
+namespace CippSharp.Core.EditorExtensions
 {
     public static class SerializedPropertyExtensions
     {

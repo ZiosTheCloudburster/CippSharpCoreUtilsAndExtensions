@@ -4,7 +4,7 @@ using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace CippSharp.Core
+namespace CippSharp.Core.EditorUtils
 {
     public static partial class EditorGUILayoutUtils
     {

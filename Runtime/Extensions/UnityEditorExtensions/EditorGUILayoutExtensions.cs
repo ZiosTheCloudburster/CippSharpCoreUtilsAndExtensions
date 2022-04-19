@@ -1,9 +1,9 @@
 ﻿#if UNITY_EDITOR
-using CippSharp.Core;
+using CippSharp.Core.EditorUtils;
 using Object = UnityEngine.Object;
 using UnityEditor;
 
-namespace CippSharpEditor.Core.Extensions
+namespace CippSharp.Core.EditorExtensions
 {
     public static class EditorGUILayoutExtensions
     {

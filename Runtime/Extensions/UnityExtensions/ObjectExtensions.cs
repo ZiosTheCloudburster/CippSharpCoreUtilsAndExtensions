@@ -6,6 +6,8 @@ using UnityEngine;
 
 namespace CippSharp.Core.Extensions
 {
+    using ObjectUtils = CippSharp.Core.Utils.ObjectUtils;
+    
     public static class ObjectExtensions 
     {
         /// <summary>

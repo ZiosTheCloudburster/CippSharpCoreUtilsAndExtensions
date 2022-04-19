@@ -1,6 +1,6 @@
 ﻿#if UNITY_EDITOR
 
-namespace CippSharp.Core
+namespace CippSharp.Core.EditorUtils
 {
     public static partial class SerializedPropertyUtils
     {

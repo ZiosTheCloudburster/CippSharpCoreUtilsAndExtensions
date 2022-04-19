@@ -8,87 +8,28 @@ using System.Linq;
 
 namespace CippSharp.Core.Extensions
 {
+    using ArrayUtils = CippSharp.Core.Utils.ArrayUtils;
+    
     public static class ArrayExtensions 
     {
-        #region Add
+        #region Array Typed → To Conversions
         
-        /// <summary>
-        /// Add an element to a list only if it is new
-        /// </summary>
-        /// <param name="list"></param>
-        /// <param name="element"></param>
-        /// <typeparam name="T"></typeparam>
-        public static void AddIfNew<T>(this List<T> list, T element)
-        {
-            ArrayUtils.AddIfNew(list, element);
-        }
-        
-        #endregion
-        
-        #region Clear
-
-        /// <summary>
-        /// Clear null entries from an enumerable
-        /// </summary>
-        /// <param name="list"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        [Obsolete("2021/08/14 → Use SelectNotNullElements instead. This will be removed in future versions.")]
-        public static IEnumerable<T> ClearNullEntries<T>(this IEnumerable<T> list) where T : class
-        {
-            return ArrayUtils.ClearNullEntries(list);
-        }
-
-        #endregion
-
-        #region Contains
-
-        /// <summary>
-        /// Similar to Any of <see> <cref>System.linq</cref> </see>
-        /// it retrieve a valid index of the first element matching the predicate.
-        /// </summary>
-        /// <param name="list"></param>
-        /// <param name="predicate"></param>
-        /// <param name="index"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public static bool Any<T>(this List<T> list, Predicate<T> predicate, out int index)
-        {
-            return ArrayUtils.Any(list, predicate, out index);
-        }
-        
-        /// <summary>
-        /// Similar to Any of <see> <cref>System.linq</cref> </see>
-        /// it retrieve a valid index of the first element matching the predicate.
-        /// </summary>
-        /// <param name="array"></param>
-        /// <param name="predicate"></param>
-        /// <param name="index"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public static bool Any<T>(this T[] array, Predicate<T> predicate, out int index)
-        {
-            return ArrayUtils.Any(array, predicate, out index);
-        }
-
-        #endregion
-        
-        #region Conversions
-
         /// <summary>
         /// To Dictionary from an IEnumerable of KeyValuePairs of same Types as Dictionary
         /// </summary>
         /// <param name="enumerable"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <typeparam name="F"></typeparam>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
         /// <returns></returns>
-        public static Dictionary<T, F> ToDictionary<T, F>(this IEnumerable<KeyValuePair<T, F>> enumerable)
+        public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> enumerable)
         {
             return ArrayUtils.ToDictionary(enumerable);
         }
         
         #endregion
-
+        
+        #region Array → Iterators
+        
         #region For
           
         /// <summary>
@@ -140,7 +81,7 @@ namespace CippSharp.Core.Extensions
         /// <returns></returns>
         public static void ForEach<T>(this T[] array, Action<T> action)
         {
-            Array.ForEach(array, action);
+            ArrayUtils.ForEach(array, action);
         }
 
         /// <summary>
@@ -152,33 +93,130 @@ namespace CippSharp.Core.Extensions
         /// <returns></returns>
         public static ICollection<T> ForEach<T>(this ICollection<T> collection, Action<T> action)
         {
-            foreach (var element in collection)
-            {
-                action.Invoke(element);
-            }
-            
-            return collection;
+            return ArrayUtils.ForEach(collection, action);
         }
         
         /// <summary>
         /// Iterates an IEnumerable 
         /// </summary>
-        /// <param name="enumeration"></param>
+        /// <param name="enumerable"></param>
         /// <param name="action"></param>
         /// <typeparam name="T"></typeparam>
-        public static IEnumerable<T> ForEach<T>(this IEnumerable<T> enumeration, Action<T> action)
+        public static IEnumerable<T> ForEach<T>(this IEnumerable<T> enumerable, Action<T> action)
         {
-            foreach (var element in enumeration)
-            {
-                action.Invoke(element);
-            }
-
-            return enumeration;
+            return ArrayUtils.ForEach(enumerable, action);
         }
         
         #endregion
         
-        #region Index Of
+        #endregion
+        
+        #region Array → Methods
+        
+        #region → Add
+        
+        /// <summary>
+        /// Add an element to a list only if it is new
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="element"></param>
+        /// <typeparam name="T"></typeparam>
+        public static void AddIfNew<T>(this List<T> list, T element)
+        {
+            ArrayUtils.AddIfNew(list, element);
+        }
+        
+        #endregion
+        
+        #region → Clear
+
+        /// <summary>
+        /// Clear null entries from an enumerable
+        /// </summary>
+        /// <param name="list"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        [Obsolete("2021/08/14 → Use SelectNotNullElements instead. This will be removed in future versions.")]
+        public static IEnumerable<T> ClearNullEntries<T>(this IEnumerable<T> list) where T : class
+        {
+            return ArrayUtils.ClearNullEntries(list);
+        }
+
+        #endregion
+        
+        #region → Any, Contains or Find Element
+
+        /// <summary>
+        /// Similar to Any of <see> <cref>System.linq</cref> </see>
+        /// it retrieve a valid index of the first element matching the predicate.
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="predicate"></param>
+        /// <param name="index"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool Any<T>(this List<T> list, Predicate<T> predicate, out int index)
+        {
+            return ArrayUtils.Any(list, predicate, out index);
+        }
+        
+        /// <summary>
+        /// Similar to Any of <see> <cref>System.linq</cref> </see>
+        /// it retrieve a valid index of the first element matching the predicate.
+        /// </summary>
+        /// <param name="array"></param>
+        /// <param name="predicate"></param>
+        /// <param name="index"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool Any<T>(this T[] array, Predicate<T> predicate, out int index)
+        {
+            return ArrayUtils.Any(array, predicate, out index);
+        }
+        
+        /// <summary>
+        /// The enumerable contains an element with predicate?
+        /// </summary>
+        /// <param name="enumerable"></param>
+        /// <param name="predicate"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool Contains<T>(this IEnumerable<T> enumerable, Predicate<T> predicate)
+        {
+            return ArrayUtils.Contains(enumerable, predicate);
+        }
+
+        /// <summary>
+        /// Find element in collection
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <param name="predicate"></param>
+        /// <param name="result"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns>success</returns>
+        public static bool Find<T>(this ICollection<T> collection, Predicate<T> predicate, out T result)
+        {
+            return ArrayUtils.Find(collection, predicate, out result);
+        }
+
+        #endregion
+
+        #region → Has Duplicates
+        
+        /// <summary>
+        /// Has Duplicates?
+        /// </summary>
+        /// <param name="enumerable"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool HasDuplicates<T>(this IEnumerable<T> enumerable)
+        {
+            return ArrayUtils.HasDuplicates(enumerable);
+        }
+
+        #endregion
+     
+        #region → Index Of Element
 
         /// <summary>
         /// Retrieve index if array contains an element with given predicate.
@@ -220,7 +258,7 @@ namespace CippSharp.Core.Extensions
         }
 
         #endregion
-        
+
         #region Is Null or Empty
         
         /// <summary>
@@ -281,7 +319,7 @@ namespace CippSharp.Core.Extensions
 
         #endregion
         
-        #region Is Valid Index
+        #region → Is Valid Index
 
         /// <summary>
         /// Returns true if the given index is the array range.
@@ -321,7 +359,8 @@ namespace CippSharp.Core.Extensions
         
         #endregion
         
-        #region Random Element
+        
+        #region → Random Element
 
         /// <summary>
         /// Retrieve a random element in array.
@@ -347,20 +386,8 @@ namespace CippSharp.Core.Extensions
 
         #endregion
 
-        #region Remove Element
+        #region → Remove Element
 
-        /// <summary>
-        /// Remove an array element at the given index and retrieve the resulting array.
-        /// </summary>
-        /// <param name="array"></param>
-        /// <param name="index"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public static void RemoveAt<T>(this T[] array, int index)
-        {
-            ArrayUtils.RemoveAt(ref array, index);
-        }
-        
         /// <summary>
         /// Remove an element from array.
         /// </summary>
@@ -385,6 +412,7 @@ namespace CippSharp.Core.Extensions
         }
 
         #endregion
+        
         
         #region Select
 
@@ -429,6 +457,7 @@ namespace CippSharp.Core.Extensions
 
         #endregion
         
+        //strings are char[]... so arrays can have strings utils
         #region Sub Array
         
         /// <summary>
@@ -439,7 +468,7 @@ namespace CippSharp.Core.Extensions
         /// <param name="length"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static T[] SubArray<T>(this T[] array, int index, int length)
+        public static T[] SubArrayOrDefault<T>(this T[] array, int index, int length)
         {
             return ArrayUtils.SubArrayOrDefault(array, index, length);
         }
@@ -449,17 +478,21 @@ namespace CippSharp.Core.Extensions
         #region Take
         
         /// <summary>
-        /// Take elements Until count
+        /// Take until count!
+        /// If there aren't enough elements only the few (less than count) are returned.
         /// </summary>
         /// <param name="collection"></param>
         /// <param name="count"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static IEnumerable<T> TakeUntil<T>(this IEnumerable<T> collection, int count)
+        public static IEnumerable<T> TakeUntilOrLess<T>(this IEnumerable<T> collection, int count)
         {
-            return ArrayUtils.TakeUntil(collection, count);
+            return ArrayUtils.TakeUntilOrLess(collection, count);
         }
         
         #endregion
+        
+        #endregion
+   
     }
 }

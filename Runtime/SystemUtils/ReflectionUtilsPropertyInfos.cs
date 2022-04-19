@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace CippSharp.Core
+namespace CippSharp.Core.Utils
 {
     using Debug = UnityEngine.Debug;
 

@@ -10,7 +10,7 @@ using CippSharp.Core;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace CippSharp.Core
+namespace CippSharp.Core.Utils
 {
 	using Object = UnityEngine.Object;
 	

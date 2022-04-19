@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace CippSharp.Core
+namespace CippSharp.Core.Utils
 {
     public static class GameObjectUtils
     {

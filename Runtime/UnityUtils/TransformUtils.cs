@@ -7,7 +7,7 @@ using Object = UnityEngine.Object;
 using UnityEditor;
 #endif
 
-namespace CippSharp.Core
+namespace CippSharp.Core.Utils
 {
     public static class TransformUtils
     {

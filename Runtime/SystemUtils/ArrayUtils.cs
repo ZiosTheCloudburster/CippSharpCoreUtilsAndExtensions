@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Debug = UnityEngine.Debug;
 
-namespace CippSharp.Core
+namespace CippSharp.Core.Utils
 {
     /// <summary>
     /// Hold static helpful methods for arrays.
@@ -783,7 +783,7 @@ namespace CippSharp.Core
         /// <param name="count"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static IEnumerable<T> TakeUntil<T>(IEnumerable<T> enumerable, int count)
+        public static IEnumerable<T> TakeUntilOrLess<T>(IEnumerable<T> enumerable, int count)
         {
             ICollection<T> collection = enumerable is ICollection<T> c ? c : enumerable.ToArray();
             int collectionCount = collection.Count;

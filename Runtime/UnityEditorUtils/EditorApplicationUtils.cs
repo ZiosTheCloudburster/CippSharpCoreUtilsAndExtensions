@@ -5,9 +5,9 @@
 using System;
 using Object = UnityEngine.Object;
 
-namespace CippSharp.Core
+namespace CippSharp.Core.EditorUtils
 {
-	public static class EditorUtils
+	public static class EditorApplicationUtils
 	{
 		[Obsolete("2021/08/14 → moved to EditorObjectUtils. This will be removed in future versions.")]
 		public static void SetDirty(Object target)

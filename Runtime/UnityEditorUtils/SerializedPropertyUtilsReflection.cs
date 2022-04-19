@@ -3,11 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using CippSharp.Core.Utils;
 using UnityEditor;
 using UnityEngine;
 using Object = System.Object;
 
-namespace CippSharp.Core
+namespace CippSharp.Core.EditorUtils
 {
     public static partial class SerializedPropertyUtils
     {

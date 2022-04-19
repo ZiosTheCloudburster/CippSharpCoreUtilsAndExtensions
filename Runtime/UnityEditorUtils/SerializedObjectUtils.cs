@@ -1,10 +1,10 @@
 ﻿#if UNITY_EDITOR
 using System.Collections.Generic;
-using CippSharp.Core;
+using CippSharp.Core.Utils;
 using UnityEditor;
 using UnityEngine;
 
-namespace CippSharp.Core
+namespace CippSharp.Core.EditorUtils
 {
     public static class SerializedObjectUtils
     {
@@ -72,93 +72,6 @@ namespace CippSharp.Core
 
             return allObjects.ToArray();
         }
-
-//	    #region We really need these?
-//	    
-//	    /// <summary>
-//		/// Add a component to serialized object's targets. 
-//		/// </summary>
-//		/// <param name="serializedObject"></param>
-//		/// <param name="checkIfComponentAlreadyExists"></param>
-//		public static Object[] AddComponentToSerializedObjectTargets<T>(SerializedObject serializedObject, bool checkIfComponentAlreadyExists = true) where T : Component
-//		{
-//			List<Object> addedComponents = new List<Object>();
-//			//Editor.targets aren't serializedObject.targetObjects
-//			Object[] inspectedTargets = serializedObject.targetObjects;
-//			for (int i = 0; i < inspectedTargets.Length; i++)
-//			{
-//				Object inspectedTarget = inspectedTargets[i];
-//				if (inspectedTarget == null)
-//				{
-//					Debug.LogError("An inspected target is null.");
-//					continue;
-//				}
-//				
-//				Component inpsectedComponent = inspectedTarget as Component;
-//				if (inpsectedComponent == null)
-//				{
-//					Debug.LogWarning("Inspected component " + inspectedTarget.name + " is not a "+ typeof(Component).Name+"." , inspectedTarget);
-//					continue;
-//				}
-//				
-//				T componentToAdd = inpsectedComponent.gameObject.GetComponent<T>();
-//				if (checkIfComponentAlreadyExists)
-//				{
-//					if (componentToAdd == null)
-//					{
-//						componentToAdd = inpsectedComponent.gameObject.AddComponent<T>();
-//					}
-//				}
-//				else
-//				{
-//					componentToAdd = inpsectedComponent.gameObject.AddComponent<T>();
-//				}
-//				
-//				addedComponents.Add(componentToAdd);
-//				
-//				EditorUtility.SetDirty(inpsectedComponent.gameObject);
-//			}
-//
-//			return addedComponents.ToArray();
-//		}
-//
-//		/// <summary>
-//		/// Remove a component from serialized object's targets.
-//		/// This method targets the first component of T found.
-//		/// </summary>
-//		/// <param name="serializedObject"></param>
-//		/// <typeparam name="T"></typeparam>
-//		public static void RemoveComponentFromSerializedObjectTargets<T>(SerializedObject serializedObject) where T : Component
-//		{
-//			//Editor.targets aren't serializedObject.targetObjects
-//			Object[] inspectedTargets = serializedObject.targetObjects;
-//			for (int i = 0; i < inspectedTargets.Length; i++)
-//			{
-//				Object inspectedTarget = inspectedTargets[i];
-//				if (inspectedTarget == null)
-//				{
-//					Debug.LogError("An inspected target is null.");
-//					continue;
-//				}
-//					
-//				Component inpsectedComponent = inspectedTarget as Component;
-//				if (inpsectedComponent == null)
-//				{
-//					Debug.LogWarning("Inspected component " + inspectedTarget.name + " is not a "+ typeof(Component).Name+"." , inspectedTarget);
-//					continue;
-//				}
-//
-//				GameObject gameObject = inpsectedComponent.gameObject;
-//				T componentToRemove = inpsectedComponent.GetComponent<T>();
-//				if (componentToRemove != null)
-//				{
-//					EditorObjectUtils.SafeDestroy(componentToRemove);
-//				}
-//				
-//				EditorUtility.SetDirty(gameObject);
-//			}
-//		}
-//	    #endregion
     }
 }
 #endif

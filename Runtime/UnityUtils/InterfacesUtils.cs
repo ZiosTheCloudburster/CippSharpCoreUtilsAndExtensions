@@ -2,7 +2,7 @@
 using System.Linq;
 using Object = UnityEngine.Object;
 
-namespace CippSharp.Core
+namespace CippSharp.Core.Utils
 {
     /// <summary>
     /// Purpose: holds utils about interfaces
