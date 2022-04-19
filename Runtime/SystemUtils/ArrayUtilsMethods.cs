@@ -11,39 +11,7 @@ namespace CippSharp.Core
     /// </summary>
     public static partial class ArrayUtils
     {
-        #region Add
-
-        /// <summary>
-        /// Add an element to a list only if it is new
-        /// </summary>
-        /// <param name="list"></param>
-        /// <param name="element"></param>
-        /// <typeparam name="T"></typeparam>
-        public static void AddIfNew<T>(List<T> list, T element)
-        {
-            if (!list.Contains(element))
-            {
-                list.Add(element);
-            }
-        }
-
-        #endregion
-
-        #region Clear
-
-        /// <summary>
-        /// Clear not null elements from an enumerable
-        /// </summary>
-        /// <param name="enumerable"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        [Obsolete("2021/08/14 → Use SelectNotNullElements instead. This will be removed in future versions.")]
-        public static IEnumerable<T> ClearNullEntries<T>(IEnumerable<T> enumerable) where T : class
-        {
-            return SelectNotNullElements(enumerable);
-        }
-
-        #endregion
+ 
 
         #region Contains / Find
         
