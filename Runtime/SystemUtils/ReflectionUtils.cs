@@ -12,7 +12,7 @@ using UnityObject = UnityEngine.Object;
 
 namespace CippSharp.Core.Utils
 {
-    public static partial class ReflectionUtils
+    public static class ReflectionUtils
     {
         /// <summary>
         /// Common binding flags for most public and non public methods.
@@ -335,6 +335,8 @@ namespace CippSharp.Core.Utils
                 return false;
             }            
         }
+
+        #region → Get Value
         
         /// <summary>
         /// Returns the value of target member if it exists otherwise return T's default value.
@@ -354,7 +356,7 @@ namespace CippSharp.Core.Utils
             }
             catch (Exception e)
             {
-                Debug.LogError(MessageGenericExceptionError(context, nameof(HasMember), e, out UnityObject o), o);
+                Debug.LogError(MessageGenericExceptionError(context, nameof(TryGetMemberValue), e, out UnityObject o), o);
             }
             
             result = default(T);
@@ -362,14 +364,14 @@ namespace CippSharp.Core.Utils
         }
         
         /// <summary>
-        ///  If you already have the member, it returns the value of target member
+        /// If you already have the member, it returns the value of target member
         /// if it exists otherwise return T's default value.
         /// </summary>
         /// <param name="context"></param>
         /// <param name="member"></param>
         /// <param name="result"></param>
         /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
+        /// <returns>success</returns>
         public static bool TryGetMemberValue<T>(object context, MemberInfo member, out T result)
         {
             try
@@ -395,12 +397,88 @@ namespace CippSharp.Core.Utils
             }
             catch (Exception e)
             {
-                Debug.LogError(MessageGenericExceptionError(context, nameof(HasMember), e, out UnityObject o), o);
+                Debug.LogError(MessageGenericExceptionError(context, nameof(TryGetMemberValue), e, out UnityObject o), o);
             }
             
             result = default(T);
             return false;
         }
+        
+        #endregion
+
+        #region → Set Value
+
+        public static bool TrySetMemberValue(object context, string memberName, object memberValue, out object result, BindingFlags bindingFlags = Common)
+        {
+            try
+            {
+                MemberInfo member = context.GetType().GetMember(memberName, bindingFlags).FirstOrDefault();
+                return TrySetMemberValue(context, member, memberValue, out result);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(MessageGenericExceptionError(context, nameof(TrySetMemberValue), e, out UnityObject o), o);
+            }
+            
+            result = null;
+            return false;
+        }
+
+        
+        /// <summary>
+        /// Try to set a member value
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="member"></param>
+        /// <param name="memberValue">in case of MethodInfo this is 'parameters' or one parameter</param>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        public static bool TrySetMemberValue(object context, MemberInfo member, object memberValue, out object result)
+        {
+            if (member == null)
+            {
+                result = null;
+                return false;
+            }
+
+            try
+            {
+                if (IsFieldInfo(member, out FieldInfo f))
+                {
+                    result = null;
+                    f.SetValue(context, memberValue);
+                    return true;
+                }
+                else if (IsPropertyInfo(member, out PropertyInfo p))
+                {
+                    result = null;
+                    p.SetValue(context, memberValue);
+                    return true;
+                }
+                else if (IsMethodInfo(member, out MethodInfo m))
+                {
+                    if (ArrayUtils.TryToObjectArray(memberValue, out object[] parameters))
+                    {
+                        result = m.Invoke(context, parameters);
+                        return true;
+                    }
+                    else
+                    {
+                        result = m.Invoke(context, new []{memberValue});
+                        return true;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(MessageGenericExceptionError(context, nameof(TrySetMemberValue), e, out UnityObject o), o);
+            }
+            
+            result = null;
+            return false;
+        }
+
+        #endregion
         
         #endregion
         
@@ -523,14 +601,293 @@ namespace CippSharp.Core.Utils
         #endregion
 
         #endregion
+        
+        #region Reflection → PropertyInfo(s)
+        
+        /// <summary>
+        /// Returns true if the context object has the target property. It also throws out the interested property.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="propertyName"></param>
+        /// <param name="property"></param>
+        /// <param name="flags"></param>
+        /// <returns></returns>
+        public static bool HasProperty(object context, string propertyName, out PropertyInfo property, BindingFlags flags = Common)
+        {
+            try
+            {
+                property = context.GetType().GetProperty(propertyName, flags);
+                return property != null;
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(MessageGenericExceptionError(context, nameof(HasProperty), e, out UnityObject o), o);
+                
+                property = null;
+                return false;
+            }
+        }
 
+        #region → Get Value
+        
+        /// <summary>
+        /// Retrieve the value of a property if it exists otherwise return T's default value.
+        /// </summary>
+        /// <param name="contextType"></param>
+        /// <param name="propertyName"></param>
+        /// <param name="bindingFlags"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T GetStaticPropertyValueOrDefault<T>(Type contextType, string propertyName, BindingFlags bindingFlags = Common)
+        {
+            TryGetStaticPropertyValue(contextType, propertyName, out T result, bindingFlags);
+            return result;
+        }
+        
+        /// <summary>
+        /// Try to retrieve the value of a property if it exists otherwise return T's default value.
+        /// </summary>
+        /// <param name="contextType"></param>
+        /// <param name="propertyName"></param>
+        /// <param name="result"></param>
+        /// <param name="bindingFlags"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool TryGetStaticPropertyValue<T>(Type contextType, string propertyName, out T result, BindingFlags bindingFlags = Common)
+        {
+            try
+            {
+                bindingFlags |= BindingFlags.Static;
+                PropertyInfo property = contextType.GetProperty(propertyName, bindingFlags);
+                if (property != null)
+                {
+                    result = (T) property.GetValue(null);
+                    return true;
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(MessageGenericExceptionError(null, nameof(TryGetStaticPropertyValue), e, out UnityObject o), o);
+            }
+
+            result = default(T);
+            return false;
+        }
+        
+        
+        /// <summary>
+        /// Retrieve the value of a property if it exists otherwise return T's default value.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="propertyName"></param>
+        /// <param name="bindingFlags"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T GetPropertyValue<T>(object context, string propertyName, BindingFlags bindingFlags = Common)
+        {
+            TryGetPropertyValue(context, propertyName, out T result, bindingFlags);
+            return result;
+        }
+
+        /// <summary>
+        /// Retrieve the value of a property if it exists otherwise return T's default value.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="propertyName"></param>
+        /// <param name="result"></param>
+        /// <param name="bindingFlags"></param>
+        /// <typeparam name="T"></typeparam>
+        public static bool TryGetPropertyValue<T>(object context, string propertyName, out T result, BindingFlags bindingFlags = Common)
+        {
+            try
+            {
+                PropertyInfo propertyInfo = context.GetType().GetProperty(propertyName, bindingFlags);
+                if (propertyInfo != null)
+                {
+                    result = (T) propertyInfo.GetValue(context, null);
+                    return true;
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(MessageGenericExceptionError(context, nameof(TryGetPropertyValue), e, out UnityObject o), o);
+            }
+            
+            result = default(T);
+            return false;
+        }
+        
+        #endregion
+        
+        #region → Set Value
+
+        /// <summary>
+        /// Returns true if successful set the new value to the property.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="propertyName"></param>
+        /// <param name="propertyValue"></param>
+        /// <param name="flags"></param>
+        /// <returns></returns>
+        public static bool TrySetPropertyValue(object context, string propertyName, object propertyValue, BindingFlags flags = Common)
+        {
+            return TrySetPropertyValue(ref context, propertyName, propertyValue, flags);
+        }
+
+        /// <summary>
+        /// Returns true if successful set the new value to the property.
+        ///
+        /// NOTE: ref supports 'ValueTypes' numbers and 'structs'
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="propertyName"></param>
+        /// <param name="propertyValue"></param>
+        /// <param name="flags"></param>
+        /// <returns></returns>
+        public static bool TrySetPropertyValue(ref object context, string propertyName, object propertyValue, BindingFlags flags = Common)
+        {
+            try
+            {
+                PropertyInfo propertyInfo = context.GetType().GetProperty(propertyName, flags);
+                if (propertyInfo != null)
+                {
+                    propertyInfo.SetValue(context, propertyValue);
+                    return true;
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(MessageGenericExceptionError(context, nameof(TrySetPropertyValue), e, out UnityObject o), o);
+            }
+            
+            return false;
+        }
+        
+        #endregion
+        
+        #endregion
+
+        #region Reflection → MethodInfo(s)
+
+        #region → Has MethodInfo
+      
+        /// <summary>
+        /// Find a method via string
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="methodName"></param>
+        /// <param name="methodInfo"></param>
+        /// <param name="flags"></param>
+        /// <returns></returns>
+        public static bool FindMethod(Type type, string methodName, out MethodInfo methodInfo, BindingFlags flags = Common)
+        {
+            methodInfo = type.GetMethod(methodName, flags);
+            return methodInfo != null;
+        }
+        
+        /// <summary>
+        /// Returns true if the context object has the target method. It also throws out the interested method.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="methodName"></param>
+        /// <param name="method"></param>
+        /// <param name="flags"></param>
+        /// <returns></returns>
+        public static bool HasMethod(object context, string methodName, out MethodInfo method, BindingFlags flags = Common)
+        {
+            try
+            {
+                method = context.GetType().GetMethod(methodName, flags);
+                return method != null;
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(MessageGenericExceptionError(context, nameof(HasMethod), e, out UnityObject o), o);
+                
+                method = null;
+                return false;
+            }
+        }
+        
+        #endregion
+        
+        /// <summary>
+        /// Check a condition on parameters of a method
+        /// </summary>
+        /// <param name="method"></param>
+        /// <param name="predicate"></param>
+        /// <returns></returns>
+        public static bool HasParametersCondition(MethodInfo method, Predicate<ParameterInfo[]> predicate)
+        {
+            try
+            {
+                ParameterInfo[] parameters = method.GetParameters();
+                return predicate.Invoke(parameters);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(MessageGenericExceptionError(null, nameof(HasParametersCondition), e, out UnityObject o), o);                return false;
+            }
+        }
+
+        #region → Invoke
+        
+        /// <summary>
+        /// Call method if exists on target object.
+        /// 
+        /// Different wording of <see cref="TryCallMethod"/> 
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="methodName"></param>
+        /// <param name="parameters"></param>
+        /// <param name="result"></param>
+        /// <param name="flags"></param>
+        /// <returns>success</returns>
+        public static bool TryInvokeMethod(object context, string methodName, out object result,
+            object[] parameters = null, BindingFlags flags = Common)
+        {
+            return TryCallMethod(context, methodName, out result, parameters, flags);
+        }
+
+        /// <summary>
+        /// Call method if exists on target object.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="methodName"></param>
+        /// <param name="parameters"></param>
+        /// <param name="result"></param>
+        /// <param name="flags"></param>
+        /// <returns>success</returns>
+        public static bool TryCallMethod(object context, string methodName, out object result, object[] parameters = null, BindingFlags flags = Common)
+        {
+            try
+            {
+                MethodInfo methodInfo = context.GetType().GetMethod(methodName, flags);
+                if (methodInfo != null)
+                {
+                    result = methodInfo.Invoke(context, parameters);
+                    return true;
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(MessageGenericExceptionError(context, nameof(TryCallMethod), e, out UnityObject o), o); 
+            }
+
+            result = null;
+            return false;
+        }
+        
+        #endregion
+        
+        #endregion
+        
+        
         private static string MessageGenericExceptionError(object context, string methodName, Exception e, out UnityObject o)
         {
             o = context as UnityObject;
             string logName = o != null ? StringUtils.LogName(o) : LogName;
             return logName + $"{methodName} failed. {CaughtExceptionPrefix}{e.Message}.";
         }
-
-        
     }
 }
