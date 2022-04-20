@@ -27,41 +27,41 @@ namespace CippSharp.Core
         /// <summary>
         /// Converts a float from m/s to km/h
         /// </summary>
-        /// <param name="input"></param>
+        /// <param name="ms"></param>
         /// <returns></returns>
-        public static float FromMStoKMH(float input)
+        public static float FromMStoKMH(float ms)
         {
-            return input * (float)MsToKmh;
+            return ms * (float)MsToKmh;
         }
 
         /// <summary>
         /// Converts a float from m/s to km/h
         /// </summary>
-        /// <param name="input"></param>
+        /// <param name="kmh"></param>
         /// <returns></returns>
-        public static float FromKMHToMS(float input)
+        public static float FromKMHToMS(float kmh)
         {
-            return input / (float)MsToKmh;
+            return kmh / (float)MsToKmh;
         }
 
         /// <summary>
         /// Converts a float from m/s^2 to km/h^2
         /// </summary>
-        /// <param name="input"></param>
+        /// <param name="mss"></param>
         /// <returns></returns>
-        public static float FromMSStoKMHH(float input)
+        public static float FromMSStoKMHH(float mss)
         {
-            return (float)((double)input * MssToKmhh);
+            return (float)((double)mss * MssToKmhh);
         }
 
         /// <summary>
         /// Converts a float from m/s^2 to km/h^2
         /// </summary>
-        /// <param name="input"></param>
+        /// <param name="kmhh"></param>
         /// <returns></returns>
-        public static float FromKMHHToMSS(float input)
+        public static float FromKMHHToMSS(float kmhh)
         {
-            return (float)((double)input / MssToKmhh);
+            return (float)((double)kmhh / MssToKmhh);
         }
     }
 }

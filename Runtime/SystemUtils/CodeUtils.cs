@@ -1,21 +1,24 @@
 using System;
+using UnityEngine;
+using Object = UnityEngine.Object;
 
-namespace CippSharp.Core
+namespace CippSharp.Core.Utils
 {
     public static class CodeUtils
     {
-        #region Try Generic
+        private static readonly string LogName = $"[{nameof(CodeUtils)}]: ";
+        
+        #region Generic → Try
 
         /// <summary>
         /// Tries to call an action from the given element
         /// </summary>
         /// <param name="element"></param>
         /// <param name="action"></param>
-        /// <param name="error"></param>
+        /// <param name="debug"></param>
         /// <returns></returns>
-        public static bool Try(object element, Action action, out string error)
+        public static bool Try(object element, Action action, Object debug)
         {
-            error = string.Empty;
             try
             {
                 action.Invoke();
@@ -23,7 +26,8 @@ namespace CippSharp.Core
             }
             catch (Exception e)
             {
-                error = e.Message;
+                string logName = debug != null ? StringUtils.LogName(debug) : LogName;
+                Debug.LogError(logName+$"{nameof(Try)} failed. Caught exception {e.Message}.", debug);
                 return false;
             }
         }
@@ -49,19 +53,18 @@ namespace CippSharp.Core
 
         #endregion
 
-        #region Try 'T' Reference
-         
+        #region Typed → Try On 'T' Reference
+
         /// <summary>
-        /// Tries to call an action from the given element
+        /// Tries to call an action with the given element
         /// </summary>
         /// <param name="element"></param>
         /// <param name="action"></param>
-        /// <param name="error"></param>
+        /// <param name="debug"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static bool Try<T>(T element, Action<T> action, out string error)
+        public static bool Try<T>(T element, Action<T> action, Object debug)
         {
-            error = string.Empty;
             try
             {
                 action.Invoke(element);
@@ -69,13 +72,14 @@ namespace CippSharp.Core
             }
             catch (Exception e)
             {
-                error = e.Message;
+                string logName = debug != null ? StringUtils.LogName(debug) : LogName;
+                Debug.LogError(logName+$"{nameof(Try)} failed. Caught exception {e.Message}.", debug);
                 return false;
             }
         }
 
         /// <summary>
-        /// Tries to call an action from the given element
+        /// Tries to call an action with the given element
         /// </summary>
         /// <param name="element"></param>
         /// <param name="action"></param>
@@ -96,7 +100,7 @@ namespace CippSharp.Core
        
         #endregion
         
-        #region Do
+        #region Typed → Do
         
         /// <summary>
         /// Perform an action on an element.
@@ -112,7 +116,7 @@ namespace CippSharp.Core
         }
         
         /// <summary>
-        /// Perform an action on an ref element.
+        /// Perform an action on an referred element.
         /// </summary>
         /// <param name="element"></param>
         /// <param name="action"></param>
