@@ -3,10 +3,12 @@
 //
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
+using UnityObject = UnityEngine.Object;
 
 namespace CippSharp.Core.Utils
 {
@@ -17,35 +19,17 @@ namespace CippSharp.Core.Utils
         /// </summary>
         public const BindingFlags Common = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.FlattenHierarchy;
 
-        public const string ErrorMessagePrefix = "Error ";
+        /// <summary>
+        /// "Caught exception: " prefix
+        /// </summary>
+        private const string CaughtExceptionPrefix = "Caught exception: ";
         
         /// <summary>
         /// A better name for logs
         /// </summary>
-        public static readonly string LogName = $"[{nameof(ReflectionUtils)}]: ";
-        
-        /// <summary>
-        /// Create an instance of a type.
-        /// </summary>
-        /// <param name="type"></param>
-        /// <param name="instance"></param>
-        /// <param name="flags"></param>
-        /// <returns>success</returns>
-        public static bool CreateInstance(Type type, out object instance, BindingFlags flags = Common)
-        {
-            var constructor = type.GetConstructors(flags).FirstOrDefault(c => c.GetParameters().Length == 0);
-            if (constructor == null)
-            {
-                instance = null;
-                return false;
-            }
+        private static readonly string LogName = $"[{nameof(ReflectionUtils)}]: ";
 
-            instance = constructor.Invoke(null);
-            return true;
-        }
-
-        #region Find Type(s)
-        
+        #region Generic → Find Type(s)
         
         /// <summary>
         /// Find type via string
@@ -87,7 +71,78 @@ namespace CippSharp.Core.Utils
         
         #endregion
         
-        #region Get Attributes
+        #region Generic → Create Instance
+        
+        /// <summary>
+        /// Create an instance of a type.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="instance"></param>
+        /// <param name="flags"></param>
+        /// <returns>success</returns>
+        public static bool TryCreateInstance(Type type, out object instance, BindingFlags flags = Common)
+        {
+            try
+            {
+                ConstructorInfo constructor = type.GetConstructors(flags).FirstOrDefault(c => c.GetParameters().Length == 0);
+                if (constructor == null)
+                {
+                    instance = null;
+                    return false;
+                }
+
+                instance = constructor.Invoke(null);
+                return true;
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(MessageGenericExceptionError(null, nameof(HasField), e, out UnityObject o), o);
+                instance = null;
+                return false;
+            }
+        }
+        
+        #endregion
+        
+        #region Generic → Methods
+        
+        #region Reflection → Get Public Constants Fields
+        
+        /// <summary>
+        /// Old way to retrieve all public constant fields of a type
+        /// 
+        /// https://stackoverflow.com/questions/10261824/how-can-i-get-all-constants-of-a-type-by-reflection
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static FieldInfo[] GetPublicConstantsFields(Type type)
+        {
+            ArrayList constants = new ArrayList();
+
+            FieldInfo[] fieldInfos = type.GetFields(
+                // Gets all public and static fields
+                BindingFlags.Public | BindingFlags.Static | 
+                // This tells it to get the fields from all base types as well
+                BindingFlags.FlattenHierarchy);
+
+            // Go through the list and only pick out the constants
+            foreach(FieldInfo fi in fieldInfos)
+                // IsLiteral determines if its value is written at 
+                //   compile time and not changeable
+                // IsInitOnly determines if the field can be set 
+                //   in the body of the constructor
+                // for C# a field which is readonly keyword would have both true 
+                //   but a const field would have only IsLiteral equal to true
+                if(fi.IsLiteral && !fi.IsInitOnly)
+                    constants.Add(fi);           
+
+            // Return an array of FieldInfos
+            return (FieldInfo[])constants.ToArray(typeof(FieldInfo));
+        }
+        
+        #endregion
+        
+        #region Reflection → Get Enum Attributes
 
         /// <summary>
         /// Gets an attribute on an enum field value
@@ -121,7 +176,45 @@ namespace CippSharp.Core.Utils
 
         #endregion
         
-        #region Is
+        #region Reflection → Print Stuffs
+        
+        /// <summary>
+        /// Log methods of type in console.
+        /// </summary>
+        public static void PrintMethods(Type type, BindingFlags flags = Common, UnityEngine.Object context = null)
+        {
+            List<string> methodNames = new List<string>();
+            foreach (var methodInfo in type.GetMethods(flags))
+            {
+                string methodName = methodInfo.Name;
+                methodNames.Add(methodName);
+                string logName = StringUtils.LogName(context);
+                string message = string.Format("Method name: <i>{0}</i>, Overload Count: <i>{1}</i>.", methodName, methodNames.Count(m => m == methodName));
+                Debug.Log(logName+message, context);
+            }
+        }
+        
+        /// <summary>
+        /// Log members of type in console.
+        /// </summary>
+        public static void PrintMembers(Type type, BindingFlags flags = Common, UnityEngine.Object context = null)
+        {
+            List<string> membersNames = new List<string>();
+            foreach (var members in type.GetMembers(flags))
+            {
+                string memberName = members.Name;
+                membersNames.Add(memberName);
+                string logName = StringUtils.LogName(context);
+                string message = string.Format("Method name: <i>{0}</i>, Overload Count: <i>{1}</i>.", memberName, membersNames.Count(m => m == memberName));
+                Debug.Log(logName+message, context);
+            }
+        }
+
+        #endregion
+        
+        #endregion
+
+        #region Generic → Is
         
         /// <summary>
         /// Is field info
@@ -212,45 +305,232 @@ namespace CippSharp.Core.Utils
                 return false;
             }
         }
-        
 
         #endregion
-
-        #region Print Stuffs
+        
+        
+        #region Reflection → MemberInfo(s)
         
         /// <summary>
-        /// Log methods of type in console.
+        /// Returns true if the context object has the target member.
+        /// It also throws out the interested member.
         /// </summary>
-        public static void PrintMethods(Type type, BindingFlags flags = Common, UnityEngine.Object context = null)
+        /// <param name="context"></param>
+        /// <param name="memberName"></param>
+        /// <param name="member"></param>
+        /// <param name="flags"></param>
+        /// <returns></returns>
+        public static bool HasMember(object context, string memberName, out MemberInfo member, BindingFlags flags = Common)
         {
-            List<string> methodNames = new List<string>();
-            foreach (var methodInfo in type.GetMethods(flags))
+            try
             {
-                string methodName = methodInfo.Name;
-                methodNames.Add(methodName);
-                string logName = StringUtils.LogName(context);
-                string message = string.Format("Method name: <i>{0}</i>, Overload Count: <i>{1}</i>.", methodName, methodNames.Count(m => m == methodName));
-                Debug.Log(logName+message, context);
+                member = context.GetType().GetMember(memberName, flags).FirstOrDefault();
+                return member != null;
             }
+            catch (Exception e)
+            {
+                Debug.LogError(MessageGenericExceptionError(context, nameof(HasMember), e, out UnityObject o), o);
+                
+                member = null;
+                return false;
+            }            
         }
         
         /// <summary>
-        /// Log members of type in console.
+        /// Returns the value of target member if it exists otherwise return T's default value.
         /// </summary>
-        public static void PrintMembers(Type type, BindingFlags flags = Common, UnityEngine.Object context = null)
+        /// <param name="context"></param>
+        /// <param name="memberName"></param>
+        /// <param name="result"></param>
+        /// <param name="bindingFlags"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool TryGetMemberValue<T>(object context, string memberName, out T result, BindingFlags bindingFlags = Common)
         {
-            List<string> membersNames = new List<string>();
-            foreach (var members in type.GetMembers(flags))
+            try
             {
-                string memberName = members.Name;
-                membersNames.Add(memberName);
-                string logName = StringUtils.LogName(context);
-                string message = string.Format("Method name: <i>{0}</i>, Overload Count: <i>{1}</i>.", memberName, membersNames.Count(m => m == memberName));
-                Debug.Log(logName+message, context);
+                MemberInfo member = context.GetType().GetMember(memberName, bindingFlags).FirstOrDefault();
+                return TryGetMemberValue(context, member, out result);
             }
+            catch (Exception e)
+            {
+                Debug.LogError(MessageGenericExceptionError(context, nameof(HasMember), e, out UnityObject o), o);
+            }
+            
+            result = default(T);
+            return false;
+        }
+        
+        /// <summary>
+        ///  If you already have the member, it returns the value of target member
+        /// if it exists otherwise return T's default value.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="member"></param>
+        /// <param name="result"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool TryGetMemberValue<T>(object context, MemberInfo member, out T result)
+        {
+            try
+            {
+                if (member != null)
+                {
+                    if (IsFieldInfo(member, out FieldInfo f))
+                    {
+                        result = (T) f.GetValue(context);
+                        return true;
+                    }
+                    else if (IsPropertyInfo(member, out PropertyInfo p))
+                    {
+                        result = (T) p.GetValue(context, null);
+                        return true;
+                    }
+                    else if (IsMethodInfo(member, out MethodInfo m))
+                    {
+                        result = (T) m.Invoke(context, null);
+                        return true;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(MessageGenericExceptionError(context, nameof(HasMember), e, out UnityObject o), o);
+            }
+            
+            result = default(T);
+            return false;
+        }
+        
+        #endregion
+        
+        #region Reflection → FieldInfo(s)
+        
+        /// <summary>
+        /// Returns true if the context object has the target field. It also throws out the interested field.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="fieldName"></param>
+        /// <param name="field"></param>
+        /// <param name="flags"></param>
+        /// <returns></returns>
+        public static bool HasField(object context, string fieldName, out FieldInfo field, BindingFlags flags = Common)
+        {
+            try
+            {
+                field = context.GetType().GetField(fieldName, flags);
+                return field != null;
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(MessageGenericExceptionError(context, nameof(HasField), e, out UnityObject o), o);
+                
+                field = null;
+                return false;
+            }            
+        }
+
+        #region → Get Value
+
+        /// <summary>
+        /// Returns the value of target field if it exists otherwise return T's default value.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="fieldName"></param>
+        /// <param name="bindingFlags"></param>
+        /// <returns></returns>
+        public static T GetFieldValueOrDefault<T>(object context, string fieldName, BindingFlags bindingFlags = Common)
+        {
+            TryGetFieldValue(context, fieldName, out T result, bindingFlags);
+            return result;
+        }
+
+        /// <summary>
+        /// Try to return the value of target field if it exists otherwise return T's default value.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="fieldName"></param>
+        /// <param name="result"></param>
+        /// <param name="bindingFlags"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool TryGetFieldValue<T>(object context, string fieldName, out T result, BindingFlags bindingFlags = Common)
+        {
+            try
+            {
+                FieldInfo fieldInfo = context.GetType().GetField(fieldName, bindingFlags);
+                if (fieldInfo != null)
+                {
+                    result = (T) fieldInfo.GetValue(context);
+                    return true;
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(MessageGenericExceptionError(context, nameof(TryGetFieldValue), e, out UnityObject o), o);
+            }
+            
+            result = default(T); 
+            return false;
         }
 
         #endregion
+        
+        #region → Set Value
+        
+        /// <summary>
+        /// Returns true if successful set the new value to the field.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="fieldName"></param>
+        /// <param name="fieldValue"></param>
+        /// <param name="flags"></param>
+        /// <returns></returns>
+        public static bool TrySetFieldValue(object context, string fieldName, object fieldValue, BindingFlags flags = Common)
+        {
+            return TrySetFieldValue(ref context, fieldName, fieldValue);
+        }
+
+        /// <summary>
+        /// Returns true if successful set the new value to the field.
+        /// 
+        /// NOTE: ref supports 'ValueTypes' numbers and 'structs'
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="fieldName"></param>
+        /// <param name="fieldValue"></param>
+        /// <param name="flags"></param>
+        /// <returns></returns>
+        public static bool TrySetFieldValue(ref object context, string fieldName, object fieldValue, BindingFlags flags = Common)
+        {
+            try
+            {
+                FieldInfo fieldInfo = context.GetType().GetField(fieldName, flags);
+                if (fieldInfo != null)
+                {
+                    fieldInfo.SetValue(context, fieldValue);
+                    return true;
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(MessageGenericExceptionError(context, nameof(TrySetFieldValue), e, out UnityObject o), o);
+            }
+
+            return false;
+        }
+        
+        #endregion
+
+        #endregion
+
+        private static string MessageGenericExceptionError(object context, string methodName, Exception e, out UnityObject o)
+        {
+            o = context as UnityObject;
+            string logName = o != null ? StringUtils.LogName(o) : LogName;
+            return logName + $"{methodName} failed. {CaughtExceptionPrefix}{e.Message}.";
+        }
+
         
     }
 }

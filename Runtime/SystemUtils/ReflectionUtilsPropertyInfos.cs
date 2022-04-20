@@ -28,7 +28,7 @@ namespace CippSharp.Core.Utils
             {
                 UnityEngine.Object obj = context as UnityEngine.Object;
                 string logName = StringUtils.LogName(obj);
-                Debug.LogError(logName+ErrorMessagePrefix+e.Message, obj);
+                Debug.LogError(logName+CaughtExceptionPrefix+e.Message, obj);
                 
                 property = null;
                 return false;
@@ -78,7 +78,7 @@ namespace CippSharp.Core.Utils
             }
             catch (Exception e)
             {
-                Debug.LogError(LogName+ErrorMessagePrefix+e.Message);
+                Debug.LogError(LogName+CaughtExceptionPrefix+e.Message);
             }
 
             return false;
@@ -129,7 +129,7 @@ namespace CippSharp.Core.Utils
             {
                 UnityEngine.Object obj = context as UnityEngine.Object;
                 string logName = StringUtils.LogName(obj);
-                Debug.LogError(logName+ErrorMessagePrefix+e.Message, obj);
+                Debug.LogError(logName+CaughtExceptionPrefix+e.Message, obj);
             }
             
             return false;
@@ -154,7 +154,7 @@ namespace CippSharp.Core.Utils
             {
                 UnityEngine.Object obj = context as UnityEngine.Object;
                 string logName = StringUtils.LogName(obj);
-                Debug.LogError(logName+ErrorMessagePrefix+e.Message, obj);
+                Debug.LogError(logName+CaughtExceptionPrefix+e.Message, obj);
                 return false;
             }
 
