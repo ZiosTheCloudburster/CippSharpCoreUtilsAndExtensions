@@ -2,24 +2,22 @@
 // Author: Alessandro Salani (Cippo)
 //
 
+using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace CippSharp.Core.Extensions
 {
+    using Color = UnityEngine.Color;
+    using StringUtils = CippSharp.Core.Utils.StringUtils;
+    
     public static class StringExtensions
     {
-        /// <summary>
-        /// Add a string to another
-        /// </summary>
-        /// <returns></returns>
-        public static string Add(this string value, string other)
-        {
-            return StringUtils.Add(value, other);
-        }
+        //Chars Utils
+        #region Generic String → Chars Utils
         
         /// <summary>
         /// Add spaces before capital letters
+        /// 
         /// https://stackoverflow.com/questions/272633/add-spaces-before-capital-letters
         /// </summary>
         /// <param name="value"></param>
@@ -28,7 +26,7 @@ namespace CippSharp.Core.Extensions
         {
             return StringUtils.AddSpacesBeforeCapitalLetters(value);
         }
-        
+
         /// <summary>
         /// Put the first valid Char of a string to UpperCase after specific chars.
         /// </summary>
@@ -50,18 +48,8 @@ namespace CippSharp.Core.Extensions
         {
             return StringUtils.EnsureEndingChar(input, c);
         }
-        
-                
-        /// <summary>
-        /// Return true if a string is equal to, or contains value
-        /// </summary>
-        /// <returns></returns>
-        public static bool EqualOrContains(this string input, string value)
-        {
-            return StringUtils.EqualOrContains(input, value);
-        }
-        
-        #region Firt Char to
+
+        #region → Firt Char to
         
         /// <summary>
         /// Put the first Char of a string to UpperCase
@@ -85,6 +73,19 @@ namespace CippSharp.Core.Extensions
         
         #endregion
         
+        #endregion
+        
+        #region String → Methods
+        
+        /// <summary>
+        /// Add a string to another
+        /// </summary>
+        /// <returns></returns>
+        public static string Add(this string value, string other)
+        {
+            return StringUtils.Add(value, other);
+        }
+        
         /// <summary>
         /// If a string ends with number this code increments that
         /// </summary>
@@ -106,8 +107,120 @@ namespace CippSharp.Core.Extensions
         {
             return StringUtils.MultiLineTab(value, tabLevel, maxCharactersPerLine);
         }
+
+            
+        /// <summary>
+        /// Split string into chunks of specified length.
+        /// </summary>
+        /// <param name="str"></param>
+        /// <param name="chunkSize"></param>
+        /// <returns></returns>
+        public static IEnumerable<string> Split(string str, int chunkSize = 50)
+        {
+            return StringUtils.Split(str, chunkSize);
+        }
         
-        #region Rich Text Extensions
+        /// <summary>
+        /// Write a string enumerable as flat string
+        /// </summary>
+        /// <param name="enumerable"></param>
+        /// <param name="separator"></param>
+        /// <returns></returns>
+        public static string ToFlatArray(this IEnumerable<string> enumerable, string separator = "")
+        {
+            return StringUtils.ToFlatArray(enumerable, separator);
+        }
+
+        #region → Predicates
+        
+        /// <summary>
+        /// Return true if a string is equal to, or contains value
+        /// </summary>
+        /// <returns></returns>
+        public static bool EqualOrContains(this string input, string value)
+        {
+            return StringUtils.EqualOrContains(input, value);
+        }
+
+        /// <summary>
+        /// Is this value string contained in any of string array?
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        public static bool IsContained(string value, string[] values)
+        {
+            return StringUtils.IsContained(value, values);
+        }
+
+        #endregion
+        
+        #region → Remove and Replace
+        
+        /// <summary>
+        /// Remove special characters from a string 
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="replace"></param>
+        /// <returns></returns>
+        public static string RemoveSpecialCharacters(this string input, string replace = "")
+        {
+            return StringUtils.RemoveSpecialCharacters(input, replace);
+        }
+
+        /// <summary>
+        /// Replace last occurrence of match.
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="match"></param>
+        /// <param name="replace"></param>
+        /// <param name="culture"></param>
+        /// <returns></returns>
+        public static string ReplaceLastOccurrence(this string source, string match, string replace, StringComparison culture = StringComparison.InvariantCulture)
+        {
+            return StringUtils.ReplaceLastOccurrence(source, match, replace, culture);
+        }
+        
+        /// <summary>
+        /// Replace empty lines.
+        /// </summary>
+        /// <param name="lines"></param>
+        /// <param name="replace">string.Empty</param>
+        /// <returns></returns>
+        public static string ReplaceEmptyLine(this string lines, string replace = "")
+        {
+            return StringUtils.ReplaceEmptyLine(lines, replace);
+        }
+        
+        /// <summary>
+        /// Replace new lines 
+        /// </summary>
+        /// <param name="lines"></param>
+        /// <param name="replace"></param>
+        /// <returns></returns>
+        public static string ReplaceNewLine(this string lines, string replace = "")
+        {
+            return StringUtils.ReplaceNewLine(lines, replace);
+        }
+        
+        /// <summary>
+        /// Replace any of the values with the replace value.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="values"></param>
+        /// <param name="replace"></param>
+        /// <returns></returns>
+        public static string ReplaceAny(this string input, string[] values, string replace = "")
+        {
+            return StringUtils.ReplaceAny(input, values, replace);
+        }
+
+        #endregion
+        
+        #endregion
+        
+        
+        #region Unity → Rich Text
 
         /// <summary>
         /// Add italic.
@@ -214,76 +327,8 @@ namespace CippSharp.Core.Extensions
        
         #endregion
 
-        #region Replacement
-        
-        /// <summary>
-        /// Remove special characters from a string 
-        /// </summary>
-        /// <param name="input"></param>
-        /// <param name="replace"></param>
-        /// <returns></returns>
-        public static string RemoveSpecialCharacters(this string input, string replace = "")
-        {
-            return StringUtils.RemoveSpecialCharacters(input, replace);
-        }
-        
-        /// <summary>
-        /// Replace last occurrence of match.
-        /// </summary>
-        /// <param name="source"></param>
-        /// <param name="match"></param>
-        /// <param name="replace"></param>
-        /// <returns></returns>
-        public static string ReplaceLastOccurrence(this string source, string match, string replace)
-        {
-            return StringUtils.ReplaceLastOccurrence(source, match, replace);
-        }
-        
-        /// <summary>
-        /// Replace empty lines.
-        /// </summary>
-        /// <param name="lines"></param>
-        /// <param name="replace">string.Empty</param>
-        /// <returns></returns>
-        public static string ReplaceEmptyLine(this string lines, string replace = "")
-        {
-            return StringUtils.ReplaceEmptyLine(lines, replace);
-        }
-        
-        /// <summary>
-        /// Replace new lines 
-        /// </summary>
-        /// <param name="lines"></param>
-        /// <param name="replace"></param>
-        /// <returns></returns>
-        public static string ReplaceNewLine(this string lines, string replace = "")
-        {
-            return StringUtils.ReplaceNewLine(lines, replace);
-        }
-        
-        /// <summary>
-        /// Replace any of the values with the replace value.
-        /// </summary>
-        /// <param name="input"></param>
-        /// <param name="values"></param>
-        /// <param name="replace"></param>
-        /// <returns></returns>
-        public static string ReplaceAny(this string input, string[] values, string replace = "")
-        {
-            return StringUtils.ReplaceAny(input, values, replace);
-        }
+       
 
-        #endregion
-
-        /// <summary>
-        /// Write a string array as flat string
-        /// </summary>
-        /// <param name="enumerable"></param>
-        /// <param name="separator"></param>
-        /// <returns></returns>
-        public static string ToFlatArray(this IEnumerable<string> enumerable, string separator = "")
-        {
-            return StringUtils.ToFlatArray(enumerable, separator);
-        }
+       
     }
 }

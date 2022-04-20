@@ -1,12 +1,13 @@
 ﻿#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
-using CippSharp.Core;
 using UnityEditor;
 using UnityEngine;
 
 namespace CippSharp.Core.EditorUtils
 {
+    using StringUtils = CippSharp.Core.Utils.StringUtils;
+    
     public static partial class SerializedPropertyUtils
     {
         #region Get Property Backing Field Name

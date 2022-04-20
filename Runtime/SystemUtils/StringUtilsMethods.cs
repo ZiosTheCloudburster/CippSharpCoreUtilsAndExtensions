@@ -4,23 +4,65 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace CippSharp.Core
+namespace CippSharp.Core.Utils
 {
-    public static partial class StringUtils
+    using Color = UnityEngine.Color;
+    using ColorUtility = UnityEngine.ColorUtility;
+    
+    public static class StringUtils
     {
+        #region → Log Name
+
         /// <summary>
-        /// Add a string to another
+        /// Retrieve a more contextual name for logs, based on typeName.
         /// </summary>
+        /// <param name="typeName"></param>
         /// <returns></returns>
-        public static string Add(string value, string other)
+        public static string LogName(string typeName)
         {
-            return string.Concat(value, other);
+            return string.Format("[{0}]: ", typeName);
         }
         
-        //Chars Utils
+        /// <summary>
+        /// Retrieve a more contextual name for logs, based on type.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static string LogName(Type type)
+        {
+            return string.Format("[{0}]: ", type.Name);
+        }
+
+        /// <summary>
+        /// Retrieve a more contextual name for logs, based on type.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="color"></param>
+        /// <returns></returns>
+        public static string LogName(Type type, Color color)
+        {
+            return string.Format("[{0}]: ", OfColor(type.Name, color));
+        }
+
+        /// <summary>
+        /// Retrieve a more contextual name for logs, based on object.
+        /// If object is null an empty string is returned.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public static string LogName(object context)
+        {
+            return ((object)context == null) ? string.Empty : LogName(context.GetType());
+        }
         
+        #endregion
+
+        //Chars Utils
+        #region Generic String → Chars Utils
+
         /// <summary>
         /// Add spaces before capital letters
+        /// 
         /// https://stackoverflow.com/questions/272633/add-spaces-before-capital-letters
         /// </summary>
         /// <param name="value"></param>
@@ -47,17 +89,7 @@ namespace CippSharp.Core
             }
             return sb.ToString();
         }
-        
-        /// <summary>
-        /// Encode bytes in UTF8 string
-        /// </summary>
-        /// <param name="bytes">must be not null</param>
-        /// <returns></returns>
-        public static string EncodeBytes(byte[] bytes)
-        {
-            return Encoding.UTF8.GetString(bytes);;
-        }
-        
+
         /// <summary>
         /// Ensure that a string ends with a certain char.
         /// </summary>
@@ -75,17 +107,8 @@ namespace CippSharp.Core
                 return (input + c);
             }
         }
-          
-        /// <summary>
-        /// Return true if a string is equal to, or contains value
-        /// </summary>
-        /// <returns></returns>
-        public static bool EqualOrContains(string input, string value)
-        {
-            return (input == value) || (input.Contains(value));
-        }
-
-        #region Firt Char to
+        
+        #region → Firt Char to
         
         /// <summary>
         /// Put the first Char of a string to UpperCase
@@ -119,6 +142,29 @@ namespace CippSharp.Core
         
         #endregion
         
+        #endregion
+        
+        #region String → Methods
+        
+        /// <summary>
+        /// Add a string to another
+        /// </summary>
+        /// <returns></returns>
+        public static string Add(string value, string other)
+        {
+            return string.Concat(value, other);
+        }
+           
+        /// <summary>
+        /// Encode bytes in UTF8 string
+        /// </summary>
+        /// <param name="bytes">must be not null</param>
+        /// <returns></returns>
+        public static string EncodeBytes(byte[] bytes)
+        {
+            return Encoding.UTF8.GetString(bytes);;
+        }
+        
         /// <summary>
         /// If a string ends with number this code increments that
         /// </summary>
@@ -149,17 +195,6 @@ namespace CippSharp.Core
             return r;
         }
         
-        /// <summary>
-        /// Is this string contained in string array?
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="values"></param>
-        /// <returns></returns>
-        public static bool IsContained(string value, string[] values)
-        {
-            return values.Any(s => s == value);
-        }
-           
         /// <summary>
         /// Retrieve a line as multiline with tabs
         /// </summary>
@@ -209,8 +244,58 @@ namespace CippSharp.Core
 
             return s;
         }
-
-        #region Replacement
+        
+          
+        /// <summary>
+        /// Split string into chunks of specified length.
+        /// </summary>
+        /// <param name="str"></param>
+        /// <param name="chunkSize"></param>
+        /// <returns></returns>
+        public static IEnumerable<string> Split(string str, int chunkSize = 50)
+        { 
+            return Enumerable.Range(0, str.Length / chunkSize)
+                .Select(i => str.Substring(i * chunkSize, chunkSize));
+        }
+        
+        /// <summary>
+        /// Write a string array as flat string
+        /// </summary>
+        /// <param name="enumerable"></param>
+        /// <param name="separator"></param>
+        /// <returns></returns>
+        public static string ToFlatArray(IEnumerable<string> enumerable, string separator = "")
+        {
+            ICollection<string> collection = enumerable is ICollection<string> c ? c : enumerable.ToArray();
+            string last = collection.Last();
+            return collection.Aggregate(string.Empty, (current, s) => current + $"{s}{(s != last ? separator : string.Empty)}");
+        }
+        
+        #region → Predicates
+       
+        /// <summary>
+        /// Return true if a string is equal to, or contains value
+        /// </summary>
+        /// <returns></returns>
+        public static bool EqualOrContains(string input, string value)
+        {
+            return (input == value) || (input.Contains(value));
+        }
+        
+        /// <summary>
+        /// Is this value string contained in any of string array?
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        public static bool IsContained(string value, string[] values)
+        {
+            return values.Any(s => s == value);
+        }
+        
+        #endregion
+        
+        #region → Remove and Replace
 
         /// <summary>
         /// Remove special characters from a string 
@@ -224,20 +309,21 @@ namespace CippSharp.Core
             input = reg.Replace(input, replace);
 
             Regex reg1 = new Regex("[ ]");
-            input = reg.Replace(input, "-");
+            input = reg1.Replace(input, replace);
             return input;
         }
-        
+
         /// <summary>
         /// Replace last occurrence of match.
         /// </summary>
         /// <param name="source"></param>
         /// <param name="match"></param>
         /// <param name="replace"></param>
+        /// <param name="culture"></param>
         /// <returns></returns>
-        public static string ReplaceLastOccurrence(string source, string match, string replace)
+        public static string ReplaceLastOccurrence(string source, string match, string replace, StringComparison culture = StringComparison.InvariantCulture)
         {
-            int place = source.LastIndexOf(match);
+            int place = source.LastIndexOf(match, culture);
 
             if (place == -1)
             {
@@ -285,29 +371,115 @@ namespace CippSharp.Core
 
         #endregion
         
-        /// <summary>
-        /// Split string into chunks of specified size.
-        /// </summary>
-        /// <param name="str"></param>
-        /// <param name="chunkSize"></param>
-        /// <returns></returns>
-        public static IEnumerable<string> Split(string str, int chunkSize = 50)
-        { 
-            return Enumerable.Range(0, str.Length / chunkSize)
-                .Select(i => str.Substring(i * chunkSize, chunkSize));
-        }
+        #endregion
 
-        /// <summary>
-        /// Write a string array as flat string
+        
+        #region Unity → Rich Text
+
+         /// <summary>
+        /// Add italic.
         /// </summary>
-        /// <param name="enumerable"></param>
-        /// <param name="separator"></param>
+        /// <param name="value"></param>
         /// <returns></returns>
-        public static string ToFlatArray(IEnumerable<string> enumerable, string separator = "")
+        public static string Italic(string value)
         {
-            string last = enumerable.Last();
-            return enumerable.Aggregate(string.Empty, (current, s) => current + $"{s}{(s != last ? separator : string.Empty)}");
+            return string.Format("<i>{0}</i>", value);
         }
 
+        /// <summary>
+        /// Remove italic.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static string UnItalic(string value)
+        {
+            return value.Replace("<i>", string.Empty).Replace("</i>", string.Empty);
+        }
+
+        /// <summary>
+        /// Add bold
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static string Bold(string value)
+        {
+            return string.Format("<b>{0}</b>", value);
+        }
+
+        /// <summary>
+        /// Remove bold
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static string UnBold(string value)
+        {
+            return value.Replace("<b>", string.Empty).Replace("</b>", string.Empty);
+        }
+
+        /// <summary>
+        /// Set the string to that color.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="color"></param>
+        /// <returns></returns>
+        public static string OfColor(string value, Color color)
+        {
+            return string.Format("<color=#{1}>{0}</color>", value, ColorUtility.ToHtmlStringRGBA(color));
+        }
+
+        /// <summary>
+        /// Remove the specific color from a string.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="color"></param>
+        /// <returns></returns>
+        public static string UnColor(string value, Color color)
+        {
+            return value.Replace(string.Format("<color=#{0}>", ColorUtility.ToHtmlStringRGBA(color)), string.Empty).Replace("</color>", string.Empty);
+        }
+
+        /// <summary>
+        /// Remove any color from a string
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static string UnColor(string value)
+        {
+            return Regex.Replace(value.Replace("</color>", string.Empty), "<color=#.*?>", string.Empty);
+        }
+
+        /// <summary>
+        /// Set the char size to a specific value.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="size"></param>
+        /// <returns></returns>
+        public static string OfSize(string value, int size)
+        {
+            return string.Format("<size={1}>{0}</size>", value, size.ToString());
+        }
+
+        /// <summary>
+        /// Remove the size from the string.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static string UnSize(string value)
+        {
+            return Regex.Replace(value.Replace("</size>", string.Empty), "<size=.*?>", string.Empty);
+        }
+
+        /// <summary>
+        /// Remove any rich text utility from string.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static string UnRichTextString(string value)
+        {
+            return Regex.Replace(value, "<.*?>", string.Empty);
+        }
+
+        #endregion
+        
     }
 }
