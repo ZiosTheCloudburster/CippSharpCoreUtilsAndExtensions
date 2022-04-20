@@ -6,10 +6,12 @@ using System;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace CippSharp.Core
+namespace CippSharp.Core.Utils
 {
     public static class CastUtils
     {
+        private static readonly string LogName = $"[{nameof(CastUtils)}]: ";
+        
         /// <summary>
         /// Tries to cast an object to another.
         /// If it fails return false and logs an error. 
@@ -38,10 +40,10 @@ namespace CippSharp.Core
         /// </summary>
         /// <param name="o"></param>
         /// <param name="value"></param>
-        /// <param name="debugContext"></param>
+        /// <param name="debug"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static bool TryCast<T>(object o, out T value, Object debugContext)
+        public static bool TryCast<T>(object o, out T value, Object debug)
         {
             try
             {
@@ -50,7 +52,8 @@ namespace CippSharp.Core
             }
             catch (Exception e)
             {
-                Debug.LogError(e.Message, debugContext);
+                string logName = debug != null ? StringUtils.LogName(debug) : LogName;
+                Debug.LogError(logName+$"{nameof(TryCast)} failed. Caught exception {e.Message}.", debug);
                 value = default(T);
                 return false;
             }
@@ -61,7 +64,7 @@ namespace CippSharp.Core
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static T To<T>(object target)
+        public static T ToOrDefault<T>(object target)
         {
             try
             {
@@ -74,10 +77,14 @@ namespace CippSharp.Core
         }
 
         /// <summary>
-        /// Casts an object to type T. In case of failure returns T default value. 
+        /// Returns true if successfully casted to T.
+        /// Casts an object to type T.
+        /// In case of failure returns false and T default value.
         /// </summary>
+        /// <param name="target"></param>
+        /// <param name="result"></param>
         /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
+        /// <returns>success</returns>
         public static bool To<T>(object target, out T result)
         {
             try

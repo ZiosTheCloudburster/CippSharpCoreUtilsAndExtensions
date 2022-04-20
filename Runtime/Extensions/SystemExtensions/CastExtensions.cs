@@ -1,5 +1,7 @@
 namespace CippSharp.Core.Extensions
 {
+    using CastUtils = CippSharp.Core.Utils.CastUtils;
+    
     public static class CastExtensions
     {
         /// <summary>
@@ -10,16 +12,18 @@ namespace CippSharp.Core.Extensions
         /// <returns></returns>
         public static T To<T>(this object target)
         {
-            return CastUtils.To<T>(target);
+            return CastUtils.ToOrDefault<T>(target);
         }
 
         /// <summary>
-        /// Casts an object to type T. In case of failure returns T default value.
+        /// Returns true if successfully casted to T.
+        /// Casts an object to type T.
+        /// In case of failure returns false and T default value.
         /// </summary>
         /// <param name="target"></param>
         /// <param name="result"></param>
         /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
+        /// <returns>success</returns>
         public static bool To<T>(this object target, out T result)
         {
             return CastUtils.To<T>(target, out result);
