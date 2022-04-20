@@ -1,9 +1,16 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace CippSharp.Core
 {
     public static class MeshUtils
     {
+        /// <summary>
+        /// Store Primitives Meshes here.
+        /// (for easy access during runtime if they're called often)
+        /// </summary>
+        private static readonly Dictionary<PrimitiveType, Mesh> LoadedMeshes = new Dictionary<PrimitiveType, Mesh>();
+        
         /// <summary>
         /// Retrieve primitive shared mesh.
         /// </summary>
@@ -11,10 +18,17 @@ namespace CippSharp.Core
         /// <returns></returns>
         public static Mesh GetPrimitiveSharedMesh(PrimitiveType primitiveType)
         {
-            GameObject holder = GameObject.CreatePrimitive(primitiveType);
-            Mesh mesh = holder.GetComponent<MeshFilter>().sharedMesh;
-            Object.DestroyImmediate(holder);
-            return mesh;
+            if (LoadedMeshes.TryGetValue(primitiveType, out Mesh storedMesh) && storedMesh != null)
+            {
+                return storedMesh;
+            }
+            else
+            {
+                GameObject holder = GameObject.CreatePrimitive(primitiveType);
+                Mesh mesh = holder.GetComponent<MeshFilter>().sharedMesh;
+                LoadedMeshes[primitiveType] = mesh;
+                return mesh;
+            }
         }
 
     }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Object = UnityEngine.Object;
 
@@ -15,11 +16,9 @@ namespace CippSharp.Core.Utils
         /// </summary>
         /// <typeparam name="I">interface</typeparam>
         /// <returns></returns>
-        public static I[] FindAllInterfaces<I>()
+        public static IEnumerable<I> FindAllInterfaces<I>()
         {
-            Object[] unityObjects = ObjectUtils.FindObjectsOfType<Object>();
-            I[] interfaces = ArrayUtils.SelectIf(unityObjects, uo => uo is I, uo => (I) (object) uo).Distinct().ToArray();
-            return interfaces;
+            return ObjectUtils.SelectFromObjectsOfType<Object, I>(o => o is I, o => (I) (object) o).Distinct();
         }
         
         /// <summary>
@@ -28,16 +27,7 @@ namespace CippSharp.Core.Utils
         /// <typeparam name="I">interface</typeparam>
         public static void CallOnAllInterfaces<I>(Action<I> action)
         {
-            I[] allInterfaces = FindAllInterfaces<I>();
-            if (ArrayUtils.IsNullOrEmpty(allInterfaces))
-            {
-                return;
-            }
-
-            foreach (var @interface in allInterfaces)
-            {
-                action?.Invoke(@interface);
-            }
+            ArrayUtils.ForEach(FindAllInterfaces<I>(), action);
         }
     }
 }

@@ -16,10 +16,10 @@ namespace CippSharp.Core.Utils
 	
 	public static class ObjectUtils
 	{
-		#region Is Not Null / Is Null (UnityEngine.Object null check as utils for extensions)
+		#region Generic Object → Is 
 		
 		/// <summary>
-		/// Retrieve if the give object is valid.
+		/// Is Object not null?
 		/// </summary>
 		/// <param name="o"></param>
 		/// <returns></returns>
@@ -29,7 +29,7 @@ namespace CippSharp.Core.Utils
 		}
 		
 		/// <summary>
-		/// Retrieve if the given object is null.
+		/// Is Object null?
 		/// </summary>
 		/// <param name="o"></param>
 		/// <returns></returns>
@@ -38,14 +38,47 @@ namespace CippSharp.Core.Utils
 			return (o == null);
 		}
 
-		#endregion
-		
-		#region Find or Get UnityEngine.Object of Type
-
-		#region Find Object of Type
+		/// <summary>
+		/// Is Object T ?
+		/// </summary>
+		/// <param name="o"></param>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		public static bool Is<T>(Object o)
+		{
+			return o is T;
+		}
 		
 		/// <summary>
-		/// A method to find a component (suggested to do during awake) that is present in scene, even if inactive.
+		/// Is Object T ?
+		/// Plus retrieve the T result
+		/// </summary>
+		/// <param name="o"></param>
+		/// <param name="result"></param>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		public static bool Is<T>(Object o, out T result)
+		{
+			if (o is T t)
+			{
+				result = t;
+				return true;
+			}
+			else
+			{
+				result = default(T);
+				return false;
+			}
+		}
+
+		#endregion
+
+		#region Object → Find or Get of Type
+		
+		#region → Find Object(s) of Type
+		
+		/// <summary>
+		/// A method to find a component (suggested to do during initialization) that is present in scene, even if inactive.
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
 		/// <returns></returns>
@@ -60,16 +93,45 @@ namespace CippSharp.Core.Utils
 			}
 #if UNITY_EDITOR
 			//Remove prefabs from retrieved array.
-			T[] sceneArray = array.Where(AssetDatabaseUtils.IsObjectPathNullOrEmpty).ToArray();
-			return sceneArray.Length < 1 ? null : sceneArray[0];
+			return array.Where(AssetDatabaseUtils.IsObjectPathNullOrEmpty).FirstOrDefault();
 #else
 			//Retrieve the first element of array.
-			return array[0];
+			return array.FirstOrDefault();
 #endif
 		}
-		
+
 		/// <summary>
-		///A method to find components (suggested to do during awake) that are present in scene even if inactive.
+		/// A method to find a component (suggested to do during initialization) that is present in scene, even if inactive.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		public static T FindObjectOfType<T>(Predicate<T> predicate) where T : Object
+		{
+			//Unity retrieve all objects of that T even inactive objects and prefabs.
+			T[] array = Resources.FindObjectsOfTypeAll<T>();
+			//If array is null or empty retrieve null.
+			if (ArrayUtils.IsNullOrEmpty(array))
+			{
+				return null;
+			}
+			
+			//Remove prefabs from retrieved array + predicate
+			return array.Where(IsValidObjectOfType).FirstOrDefault();
+			bool IsValidObjectOfType(T t)
+			{
+				return 
+#if UNITY_EDITOR
+					AssetDatabaseUtils.IsObjectPathNullOrEmpty(t) && 
+#endif
+					predicate.Invoke(t);
+			}
+		}
+
+
+
+		/// <summary>
+		/// A method to find components (suggested to do during initialization) that are present in scene even if inactive.
+		///
 		/// Warning: the result may be sorted differently at each play.
 		/// Use <see cref="GetAllComponents{T}"/> for a sorted array.
 		/// </summary>
@@ -81,16 +143,72 @@ namespace CippSharp.Core.Utils
 			T[] array = Resources.FindObjectsOfTypeAll<T>();
 #if UNITY_EDITOR
 			//Remove prefabs from retrieved array.
-			T[] sceneArray = array.Where(AssetDatabaseUtils.IsObjectPathNullOrEmpty).ToArray();
-			return sceneArray;
+			return array.Where(AssetDatabaseUtils.IsObjectPathNullOrEmpty).ToArray();
 #else
 			return array;
 #endif
 		}
 
+		/// <summary>
+		/// A method to find components (suggested to do during initialization) that are present in scene even if inactive.
+		///
+		/// Warning: the result may be sorted differently at each play.
+		/// Use <see cref="GetAllComponents{T}"/> for a sorted array.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		public static T[] FindObjectsOfType<T>(Predicate<T> predicate) where T : Object
+		{
+			//Retrieve all objects of that T even inactive objects and prefabs.
+			T[] array = Resources.FindObjectsOfTypeAll<T>();
+			
+			//Remove prefabs from retrieved array + predicate
+			return array.Where(IsValidObjectOfType).ToArray();
+			bool IsValidObjectOfType(T t)
+			{
+				return 
+#if UNITY_EDITOR
+					AssetDatabaseUtils.IsObjectPathNullOrEmpty(t) && 
+#endif
+					predicate.Invoke(t);
+			}
+		}
+
+		///  <summary>
+		///  A method to select something from components (suggested to do during initialization)
+		///  that are present in scene even if inactive.
+		/// 
+		///  Warning: the result may be sorted differently at each play.
+		///  Use <see cref="GetAllComponents{T}"/> for a sorted array.
+		///  </summary>
+		///  <typeparam name="T"></typeparam>
+		///  <typeparam name="K"></typeparam>
+		///  <returns></returns>
+		public static IEnumerable<K> SelectFromObjectsOfType<T, K>(Predicate<T> predicate, Func<T, K> func) where T : Object
+		{
+			//Retrieve all objects of that T even inactive objects and prefabs.
+			T[] array = Resources.FindObjectsOfTypeAll<T>();
+			
+			//Remove prefabs from retrieved array + predicate
+			return array.Where(IsValidObjectOfType).Select(func);
+			bool IsValidObjectOfType(T t)
+			{
+				return 
+#if UNITY_EDITOR
+					AssetDatabaseUtils.IsObjectPathNullOrEmpty(t) && 
+#endif
+					predicate.Invoke(t);
+			}
+		}
+
+		#endregion
 		
 		#endregion
+		
+		
+//		#region Find or Get UnityEngine.Object of Type
 
+		
 		#region Get
 		
 		/// <summary>
@@ -119,7 +237,7 @@ namespace CippSharp.Core.Utils
 		
 		#endregion
 	
-		#endregion
+//		#endregion
 		
 		#region Get UnityEngine.Object Instance ID
 
