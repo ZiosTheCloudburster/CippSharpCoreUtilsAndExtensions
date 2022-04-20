@@ -1,16 +1,15 @@
-﻿using UnityEngine;
-
-namespace CippSharp.Core
+﻿
+namespace CippSharp.Core.Utils
 {
     public static class DoubleUtils
     {
         /// <summary>
-        /// Retrieve a percentage float of passed one
+        /// Retrieve a percentage double of passed one
         /// </summary>
         /// <returns></returns>
         public static double Perc(double value, double perc)
         {
-            return value * (perc / 100.0000f);
+            return value * (perc / 100.000000000000000d);
         }
 
         /// <summary>

@@ -1,10 +1,14 @@
 ﻿using System;
 using UnityEngine;
 
-namespace CippSharp.Core
+namespace CippSharp.Core.Utils
 {
     public static class FloatUtils
     {
+        private static readonly string LogName = $"[{nameof(FloatUtils)}]: ";
+
+        #region → Comparison
+
         /// <summary>
         /// Returns true if a float is equal to target 
         /// </summary>
@@ -27,11 +31,11 @@ namespace CippSharp.Core
             }
             else
             {
-                Debug.Log($"{nameof(FloatUtils)}: what is this case?");
+                Debug.LogError(LogName+$"{nameof(IsEqualTo)} what is this case?");
                 return true;
             }
         }
-        
+                
         /// <summary>
         /// Returns true if the passed measure is equal to the distance with a tolerance
         /// </summary>
@@ -44,26 +48,18 @@ namespace CippSharp.Core
             return Math.Abs(measure - distance) < tolerance;
         }
         
+        #endregion
+
+        #region → Methods
+         
         /// <summary>
         /// Retrieve a percentage float of passed one
         /// </summary>
         /// <returns></returns>
         public static float Perc(float value, float perc)
         {
-            return value * (perc / 100.00f);
+            return value * (perc / 100.0000000f);
         }
-
-        #region Rolls
-
-        /// <summary>
-        /// Roll a d100 with floating numbers.
-        /// </summary>
-        /// <returns></returns>
-        public static float floatD100()
-        {
-            return UnityEngine.Random.Range(0.00f, 100.00f);
-        }
-        #endregion
         
         /// <summary>
         /// Round a measure to target x numbers after comma.
@@ -83,7 +79,7 @@ namespace CippSharp.Core
         /// <returns></returns>
         public static int IndexOfMax(float[] values)
         {
-            if (values == null || values.Length == 0)
+            if (values == null || values.Length <= 0)
             {
                 return -1;
             }
@@ -101,5 +97,30 @@ namespace CippSharp.Core
             }
             return index;
         }
+        
+        #endregion
+      
+        #region → Rolls
+
+        /// <summary>
+        /// Roll a d100 with floating numbers.
+        /// </summary>
+        /// <returns></returns>
+        public static float floatD100()
+        {
+            return UnityEngine.Random.Range(0.00f, 100.00f);
+        }
+        
+        /// <summary>
+        /// Roll a d100 with floating numbers.
+        /// </summary>
+        /// <returns></returns>
+        public static float floatDice(float min = 0.00f, float max = 100.00f)
+        {
+            return UnityEngine.Random.Range(min, max);
+        }
+        
+        #endregion
+      
     }
 }

@@ -6,6 +6,8 @@ using System;
 
 namespace CippSharp.Core.Extensions
 {
+	using EnumUtils = CippSharp.Core.Utils.EnumUtils;
+	
 	public static class EnumExtensions
 	{
 		/// <summary>

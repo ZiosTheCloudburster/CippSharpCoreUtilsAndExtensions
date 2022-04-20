@@ -4,6 +4,8 @@
 
 namespace CippSharp.Core.Extensions
 {
+	using FloatUtils = CippSharp.Core.Utils.FloatUtils;
+	
 	public static class FloatExtensions
 	{
 		/// <summary>

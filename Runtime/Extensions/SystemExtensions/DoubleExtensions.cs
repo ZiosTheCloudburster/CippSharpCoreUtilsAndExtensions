@@ -1,5 +1,7 @@
 ﻿namespace CippSharp.Core.Extensions
 {
+    using DoubleUtils = CippSharp.Core.Utils.DoubleUtils;
+    
     public static class DoubleExtensions
     {
         /// <summary>

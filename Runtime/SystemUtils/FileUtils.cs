@@ -2,31 +2,34 @@
 using System.Diagnostics;
 using System.IO;
 
-namespace CippSharp.Core
+namespace CippSharp.Core.Utils
 {
     using Debug = UnityEngine.Debug;
     using Object = UnityEngine.Object;
     
     public static class FileUtils
     {
-        #region Ensure Directory
+        private static readonly string LogName = $"[{nameof(FileUtils)}]: ";
+        
+        #region → Directories
+
+        #region → EnsureExistsFolder
         
         /// <summary>
         /// Tries to ensure the existence of a folder
         /// </summary>
         /// <param name="directoryPath">full path of the directory</param>
-        public static bool EnsureExistDirectory(string directoryPath)
+        public static bool EnsureExistsFolder(string directoryPath)
         {
-            return EnsureExistDirectory(directoryPath, null);
+            return EnsureExistsDirectory(directoryPath, null);
         }
-        
-        
+
         /// <summary>
         /// Tries to ensure the existence of a folder
         /// </summary>
         /// <param name="directoryPath">full path of the directory</param>
-        /// <param name="debugContext"></param>
-        public static bool EnsureExistDirectory(string directoryPath, Object debugContext)
+        /// <param name="debug"></param>
+        public static bool EnsureExistsDirectory(string directoryPath, Object debug = null)
         {
             try
             {
@@ -34,13 +37,13 @@ namespace CippSharp.Core
                 {
                     Directory.CreateDirectory(directoryPath);
                 }
-
+                
                 return true;
             }
             catch (Exception e)
             {
-                string logName = StringUtils.LogName(debugContext);
-                Debug.LogError(logName+$"{nameof(EnsureExistDirectory)} error: {e.Message}", debugContext);
+                string logName = debug != null ? StringUtils.LogName(debug) : LogName;
+                Debug.LogError(logName+$"{nameof(EnsureExistsDirectory)} failed. Caught exception: {e.Message}.", debug);
                 return false;
             }
         }
@@ -51,8 +54,8 @@ namespace CippSharp.Core
         /// Try to open folder
         /// </summary>
         /// <param name="fullPath"></param>
-        /// <param name="debugContext"></param>
-        public static bool TryOpenFolder(string fullPath, Object debugContext = null)
+        /// <param name="debug"></param>
+        public static bool TryOpenFolder(string fullPath, Object debug = null)
         {
             try
             {
@@ -61,27 +64,33 @@ namespace CippSharp.Core
             }
             catch (Exception e)
             {
-                string logName = StringUtils.LogName(debugContext);
-                Debug.LogError(logName + $"{nameof(TryOpenFolder)} error: {e.Message}", debugContext);
+                string logName = debug != null ? StringUtils.LogName(debug) : LogName;
+                Debug.LogError(logName + $"{nameof(TryOpenFolder)} failed. Caught exception: {e.Message}.", debug);
                 return false;
             }
         }
+        
+        #endregion
+
+        #region → Files
         
         /// <summary>
         /// Try to delete a file.
         /// </summary>
         /// <param name="path"></param>
-        /// <param name="debugContext"></param>
-        public static void TryDelete(string path, Object debugContext = null)
+        /// <param name="debug"></param>
+        public static bool TryDelete(string path, Object debug = null)
         {
             try
             {
                 File.Delete(path);
+                return true;
             }
             catch (Exception e)
             {
-                string logName = StringUtils.LogName(debugContext);
-                Debug.LogError(logName + $"{nameof(TryDelete)} error: {e.Message}", debugContext);
+                string logName = debug != null ? StringUtils.LogName(debug) : LogName;
+                Debug.LogError(logName + $"{nameof(TryDelete)} failed. Caught exception: {e.Message}.", debug);
+                return false;
             }
         }
         
@@ -90,18 +99,22 @@ namespace CippSharp.Core
         /// </summary>
         /// <param name="oldPath"></param>
         /// <param name="newPath"></param>
-        /// <param name="debugContext"></param>
-        public static void TryMove(string oldPath, string newPath, Object debugContext = null)
+        /// <param name="debug"></param>
+        public static bool TryMove(string oldPath, string newPath, Object debug = null)
         {
             try
             {
                 File.Move(oldPath, newPath);
+                return true;
             }
             catch (Exception e)
             {
-                string logName = StringUtils.LogName(debugContext);
-                Debug.LogError(logName+$"{nameof(TryMove)} error: {e.Message}", debugContext);
+                string logName = debug != null ? StringUtils.LogName(debug) : LogName;
+                Debug.LogError(logName+$"{nameof(TryMove)} failed. Caught exception: {e.Message}.", debug);
+                return false;
             }
         }
+        
+        #endregion
     }
 }
