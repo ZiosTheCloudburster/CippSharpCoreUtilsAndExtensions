@@ -1,21 +1,38 @@
 ﻿using UnityEngine;
 
-namespace CippSharp.Core
+namespace CippSharp.Core.Utils
 {
     public static class IntUtils
     {
-        #region Rolls 
+        #region → Rolls 
+        
         /// <summary>
         /// Roll a d100 with integer numbers.
         /// </summary>
         /// <returns></returns>
         public static int intD100()
         {
-            return Random.Range(0, 101);
+            return UnityEngine.Random.Range(0, 101);
         }
 
+           
+        /// <summary>
+        /// Roll a d100 with integer numbers.
+        /// Max is exclusive.
+        /// </summary>
+        /// <returns></returns>
+        public static int intDice(int max = 101)
+        {
+            return UnityEngine.Random.Range(0, max);
+        }
+        
         #endregion
 
+        /// <summary>
+        /// Is int odd?
+        /// </summary>
+        /// <param name="i"></param>
+        /// <returns></returns>
         public static bool IsOdd(int i)
         {
             return i % 2 == 1;

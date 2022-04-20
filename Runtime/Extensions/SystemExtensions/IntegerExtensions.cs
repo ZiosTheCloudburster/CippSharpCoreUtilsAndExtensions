@@ -1,5 +1,7 @@
 ﻿namespace CippSharp.Core.Extensions
 {
+    using IntUtils = CippSharp.Core.Utils.IntUtils;
+    
     public static class IntegerExtensions
     {
         /// <summary>

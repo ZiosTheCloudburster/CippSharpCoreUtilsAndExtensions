@@ -115,9 +115,9 @@ namespace CippSharp.Core.Utils
         /// Roll a d100 with floating numbers.
         /// </summary>
         /// <returns></returns>
-        public static float floatDice(float min = 0.00f, float max = 100.00f)
+        public static float floatDice(float max = 100.00f)
         {
-            return UnityEngine.Random.Range(min, max);
+            return UnityEngine.Random.Range(0.00f, max);
         }
         
         #endregion
