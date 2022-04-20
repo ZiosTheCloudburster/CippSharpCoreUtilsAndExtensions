@@ -2,6 +2,8 @@
 
 namespace CippSharp.Core.Extensions
 {
+    using BoundsUtils = CippSharp.Core.Utils.BoundsUtils;
+    
     public static class BoundsExtensions
     {
         /// <summary>

@@ -1,11 +1,31 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Object = UnityEngine.Object;
 
 namespace CippSharp.Core.Utils
 {
     public static class GameObjectUtils
     {
+        /// <summary>
+        /// Generic Object as GameObject
+        /// </summary>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        public static GameObject From(Object target)
+        {
+            switch (target)
+            {
+                case GameObject g:
+                    return g;
+                case Component c:
+                    return c.gameObject;
+                default:
+                    return null;
+            }
+        }
+        
         /// <summary>
         /// Retrieve the first gameObject component of type T.
         /// </summary>
@@ -16,6 +36,25 @@ namespace CippSharp.Core.Utils
         {
             return gameObject.GetComponent<T>();
         }
+
+        public static IEnumerable<GameObject> FilterAll(Object[] targets)
+        {
+            List<GameObject> filtered = new List<GameObject>();
+            foreach (var target in targets)
+            {
+                if (target == null)
+                {
+                    continue;
+                }
+
+                GameObject result = From(target);
+                if (result != null)
+                {
+                    ArrayUtils.AddIfNew(filtered, result);
+                }
+            }
+        }
+        
                 
         #region Brodcast All
 

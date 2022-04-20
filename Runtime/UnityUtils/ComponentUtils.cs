@@ -11,7 +11,15 @@ namespace CippSharp.Core.Utils
 	public static class ComponentUtils
 	{
 		/// <summary>
-		/// Get component in parent that works even in special cases, like unet.
+		/// A better name for logs
+		/// </summary>
+		private static readonly string LogName = $"[{nameof(ComponentUtils)}]: ";
+
+		#region → GetComponentInParent
+
+		/// <summary>
+		/// Hardcore GetComponentInParent that works even in special cases like
+		/// UNET networking
 		/// </summary>
 		/// <param name="target"></param>
 		/// <typeparam name="T"></typeparam>
@@ -20,7 +28,7 @@ namespace CippSharp.Core.Utils
 		{
 			if (target == null)
 			{
-				Debug.LogError(nameof(target) + " is null.");
+				Debug.LogError(LogName+$"{nameof(GetComponentInParent)} {nameof(target)} is null.");
 				return default(T);
 			}
 
@@ -41,44 +49,48 @@ namespace CippSharp.Core.Utils
 		}
 
 		/// <summary>
-		/// Get component in parent that works even in special cases, like unet.
+		/// Hardcore GetComponentInParent that works even in special cases like
+		/// UNET networking
 		/// </summary>
 		/// <param name="target"></param>
 		/// <typeparam name="T"></typeparam>
 		/// <returns></returns>
 		public static T GetComponentInParent<T>(Component target)
 		{
-			if (target == null)
-			{
-				Debug.LogError(nameof(target) + " is null.");
-				return default(T);
-			}
-
 			return GetComponentInParent<T>(target.gameObject);
 		}
 
-		#region Add Component to Target Objects
+		#endregion
+
+		
+
+		#region Add Component to Targets
 
 		/// <summary>
-		/// Add a component to serialized object's targets. Retrieve array of components as Object[]
+		/// Add specific components to generic bunch of targets
 		/// </summary>
 		/// <param name="targets"></param>
 		/// <param name="dontAddComponentIfItAlreadyExists"></param>
-		public static Object[] AddComponentToTargets<T>(Object[] targets,  bool dontAddComponentIfItAlreadyExists = true) where T : Component
+		public static List<T> AddComponentToTargets<T>(Object[] targets,  bool dontAddComponentIfItAlreadyExists = true) where T : Component
 		{
-			List<Object> addedComponents = new List<Object>();
+			List<T> addedComponents = new List<T>();
+			var filteredTargets = ArrayUtils.SelectIf(targets, o => GameObjectUtils.From(o) != null, GameObjectUtils.From);
 			for (int i = 0; i < targets.Length; i++)
 			{
 				Object target = targets[i];
 				if (target == null)
 				{
-					Debug.LogError("An inspected target is null.");
+					Debug.LogError(LogName+$"{nameof(AddComponentToTargets)} {nameof(target)} is null at {i.ToString()}.");
 					continue;
 				}
+				
+				GameObject add
 				
 				Component inspectedComponent = target as Component;
 				if (inspectedComponent == null)
 				{
+					
+					Debug.LogWarning(LogName+$"{nameof(AddComponentToTargets)} {nameof(target)} is null at {i.ToString()}.");
 					Debug.LogWarning("Inspected component " + target.name + " is not a "+ typeof(Component).Name+"." , target);
 					continue;
 				}
@@ -103,7 +115,7 @@ namespace CippSharp.Core.Utils
 #endif
 			}
 
-			return addedComponents.ToArray();
+			return addedComponents;
 		}
 
 		#endregion

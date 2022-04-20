@@ -2,6 +2,8 @@
 
 namespace CippSharp.Core
 {
+    using ColorUtils = CippSharp.Core.Utils.ColorUtils;
+    
     public static class ColorExtensions
     {
         /// <summary>

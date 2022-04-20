@@ -1,23 +1,26 @@
 ﻿/* 
     Author: Alessandro Salani (Cippo) 
 */
+
 #if UNITY_EDITOR
 using System;
-#endif
-using UnityEngine;
-#if UNITY_EDITOR
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Collections.Generic;
 using UnityEditor;
 #endif
+using UnityEngine;
 using Object = UnityEngine.Object;
-
 
 namespace CippSharp.Core.Utils
 {
     public static class AssetDatabaseUtils
     {
+        /// <summary>
+        /// A better name for logs
+        /// </summary>
+        private static readonly string LogName = $"[{nameof(AssetDatabaseUtils)}]: ";
+        
         /// <summary>
         /// Retrieve the asset database path during editor.
         /// In build it retrieve "";
@@ -29,7 +32,7 @@ namespace CippSharp.Core.Utils
 #if UNITY_EDITOR
             return AssetDatabase.GetAssetPath(asset);
 #else
-            return "";
+            return string.Empty;
 #endif
         }
         
@@ -42,12 +45,12 @@ namespace CippSharp.Core.Utils
         {
 #if UNITY_EDITOR
             Object target = interestedObject;
-            if (interestedObject is Component)
+            if (interestedObject is Component c)
             {
-                target = (Object)((interestedObject as Component).gameObject);
+                target = (Object)(c.gameObject);
             }
-            string assethPath = AssetDatabase.GetAssetPath(target);
-            return string.IsNullOrEmpty(assethPath);
+            string assetPath = AssetDatabase.GetAssetPath(target);
+            return string.IsNullOrEmpty(assetPath);
 #else
 			return false;
 #endif
@@ -56,7 +59,41 @@ namespace CippSharp.Core.Utils
         #region Load Target Asset
         
         /// <summary>
-        /// Try to load an asset using editor way, but at runtime it fallback in resources.load.
+        /// This load the first asset found with given assetDatabase filter.
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T LoadTargetAsset<T>(string filter) where T : Object
+        {
+#if UNITY_EDITOR
+            string[] guids = AssetDatabase.FindAssets(filter);
+            if (ArrayUtils.IsNullOrEmpty(guids))
+            {
+                return null;
+            }
+
+            List<string> filteredPaths = guids.Select(AssetDatabase.GUIDToAssetPath).ToList();
+
+            try
+            {
+                return AssetDatabase.LoadAssetAtPath<T>(filteredPaths.FirstOrDefault());
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(LogName+$"{nameof(LoadTargetAsset)} failed. Caught exception: {e.Message}.");
+            }
+
+            return null;
+#else
+            return null;
+#endif
+        }
+
+        
+        /// <summary>
+        /// This load the first asset found with given assetDatabase filter.
+        /// If it fails the first time it tries to load it from resources by assetName.
         /// </summary>
         /// <param name="assetName"></param>
         /// <param name="filter"></param>
@@ -65,7 +102,6 @@ namespace CippSharp.Core.Utils
         public static T LoadTargetAsset<T>(string assetName, string filter) where T : Object
         {
 #if UNITY_EDITOR
-            List<string> filteredPaths = new List<string>();
             string[] guids = AssetDatabase.FindAssets(filter);
             if (ArrayUtils.IsNullOrEmpty(guids))
             {
@@ -73,30 +109,32 @@ namespace CippSharp.Core.Utils
                 return null;
             }
 
-            foreach (var guid in guids)
-            {
-                filteredPaths.Add(AssetDatabase.GUIDToAssetPath(guid));
-            }
-            
+            List<string> filteredPaths = guids.Select(AssetDatabase.GUIDToAssetPath).ToList();
+            T loaded = null;
             try
             {
-                return AssetDatabase.LoadAssetAtPath<T>(filteredPaths.FirstOrDefault(f => Path.GetFileNameWithoutExtension(f) == assetName));
+                loaded = AssetDatabase.LoadAssetAtPath<T>(filteredPaths.FirstOrDefault(f => Path.GetFileNameWithoutExtension(f) == assetName));
             }
             catch (Exception e)
             {
-                Debug.LogError(e.Message);
+                loaded = null;
+                Debug.LogError(LogName+$"{nameof(LoadTargetAsset)} failed. Caught exception: {e.Message}.");
             }
 
-            try
+            if (loaded == null)
             {
-                return Resources.Load<T>(assetName);
-            }
-            catch (Exception e)
-            {
-                Debug.LogError(e.Message);
+                try
+                {
+                    loaded = Resources.Load<T>(assetName);
+                }
+                catch (Exception e)
+                {
+                    loaded = null;
+                    Debug.LogError(LogName + $"{nameof(LoadTargetAsset)} failed. Caught exception: {e.Message}.");
+                }
             }
 
-            return (T)null;
+            return loaded;
 #else
             return Resources.Load<T>(assetName);
 #endif
