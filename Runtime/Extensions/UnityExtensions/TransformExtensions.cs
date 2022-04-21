@@ -370,7 +370,7 @@ namespace CippSharp.Core.Extensions
 		/// <returns></returns>
 		public static Transform FindInactive(this Transform transform, string childName)
 		{
-			return TransformUtils.FindInactive(transform, childName);
+			return TransformUtils.FindDirectInactive(transform, childName);
 		}
 		
 		#endregion

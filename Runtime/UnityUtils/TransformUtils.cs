@@ -12,11 +12,54 @@ namespace CippSharp.Core.Utils
     public static class TransformUtils
     {
         /// <summary>
-        /// Retrieve a nicer name for logs.
+        /// A better name for logs
         /// </summary>
-        public static readonly string LogName = StringUtils.LogName(typeof(TransformUtils));
+        private static readonly string LogName = $"[{nameof(TransformUtils)}]: ";
+                
+        #region Transform → Brothers
+
+        /// <summary>
+        /// It finds a transform that is brother of the target.
+        /// </summary>
+        /// <returns></returns>
+        public static Transform FindBrother(Transform target, string brotherName)
+        {
+            Transform parent = target.parent;
+            if (parent == null)
+            {
+                var brothers = target.gameObject.scene.GetRootGameObjects();
+                foreach (var brother in brothers)
+                {
+                    if (brother.name != brotherName)
+                    {
+                        continue;
+                    }
+					
+                    return brother.transform;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < parent.childCount; i++)
+                {
+                    var child = parent.GetChild(i);
+                    if (child.gameObject.name != brotherName)
+                    {
+                        continue;
+                    }
+
+                    return child;
+                }
+            }
+			
+            return null;
+        }
+
+        #endregion
         
-        #region Create Child 
+        #region Transform → Children
+
+        #region → Create Child 
         
         /// <summary>
         /// Allow to create a child if it isn't found!
@@ -78,11 +121,239 @@ namespace CippSharp.Core.Utils
             ResetLocals(child);
             return child;
         }
-
         
         #endregion
 
-        #region Position
+        #region → Contains
+
+        /// <summary>
+        /// Retrieve true if target is children, at any level
+        /// </summary>
+        /// <param name="root"></param>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        public static bool Contains(Transform root, GameObject target)
+        {
+            return ContainsInternal(root, target, null, false);
+        }
+        
+        /// <summary>
+        /// Retrieve true if target is children, at any level
+        /// </summary>
+        /// <param name="root"></param>
+        /// <param name="target"></param>
+        /// <param name="debugContext"></param>
+        /// <returns></returns>
+        public static bool Contains(Transform root, GameObject target, Object debugContext)
+        {
+            return ContainsInternal(root, target, debugContext, true);
+        }
+
+        /// <summary>
+        /// Retrieve true if target is children, at any level
+        /// </summary>
+        /// <param name="root"></param>
+        /// <param name="target"></param>
+        /// <param name="debugContext"></param>
+        /// <param name="debug"></param>
+        /// <returns></returns>
+        private static bool ContainsInternal(Transform root, GameObject target, Object debugContext, bool debug)
+        {
+            string logName = debug ? StringUtils.LogName(debugContext) : string.Empty;
+			
+            if (root == null)
+            {
+                if (debug)
+                {
+                    Debug.LogError(logName+$"{nameof(ContainsInternal)} {nameof(root)} is null.", debugContext);
+                }
+                return false;
+            }
+
+            if (target == null)
+            {
+                if (debug)
+                {
+                    Debug.LogError(logName+$"{nameof(ContainsInternal)} {nameof(target)} is null.", debugContext);
+                }
+                return false;
+            }
+
+            Transform[] children = root.GetComponentsInChildren<Transform>(true);
+            return children.Any(child => child.gameObject == target);
+        }
+
+        #endregion
+        
+        #region → Find
+
+        /// <summary>
+        /// Find a direct children even if he is inactive!
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="childName">direct child</param>
+        /// <returns></returns>
+        public static Transform FindDirectInactive(Transform target, string childName)
+        {
+            for (int i = 0; i < target.childCount; i++)
+            {
+                Transform child = target.GetChild(i);
+                if (child.gameObject.name == childName)
+                {
+                    return child/*e*/;
+                }
+            }
+
+            return null;
+        }
+        
+        /// <summary>
+        /// Retrieve transform direct children.
+        /// </summary>
+        /// <param name="transform"></param>
+        /// <returns></returns>
+        public static List<Transform> GetDirectChildren(Transform transform)
+        {
+            List<Transform> children = new List<Transform>();
+            for (int i = 0; i < transform.childCount; i++)
+            {
+                Transform child = transform.GetChild(i);
+                children.Add(child);
+            }
+            return children;
+        }
+
+        /// <summary>
+        /// Try find and child at given path.
+        /// </summary>
+        /// <param name="root"></param>
+        /// <param name="path"></param>
+        /// <param name="child"></param>
+        /// <returns></returns>
+        public static bool TryFind(Transform root, string path, out Transform child)
+        {
+            try
+            {
+                child = root.Find(path);
+                return child != null;
+            }
+            catch 
+            {
+                child = null;
+                return false;
+            }
+        }
+        
+        #endregion
+        
+        
+        
+        #region → Sorting Children Alphabetical
+
+        /// <summary>
+        /// Sort target children alphabetical.
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="recursive"></param>
+        public static void SortChildrenAlphabetical(Transform target, bool recursive)
+        {
+            SortChildrenAlphabeticalInternal(target, recursive, false, false);
+        }
+
+        /// <summary>
+        /// Sort target children alphabetical.
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="recursive"></param>
+        public static void SortChildrenAlphabetical(Transform target, bool recursive, bool editor, bool debug = false)
+        {
+            SortChildrenAlphabeticalInternal(target, recursive, editor, debug);
+        }
+
+        /// <summary>
+        /// Sort target children alphabetical.
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="recursive"></param>
+        /// <param name="editor">enables editor support</param>
+        /// <param name="debug"></param>
+        private static void SortChildrenAlphabeticalInternal(Transform target, bool recursive, bool editor, bool debug = false)
+        {
+            //If target is null returns.
+            if (target == null)
+            {
+                if (debug)
+                {
+                    Debug.LogError(LogName + $"{nameof(SortChildrenAlphabeticalInternal)} {nameof(target)} is null.");
+                }
+                return;
+            }
+            
+            Transform[] directUnsortedChildren = target.GetComponentsInChildren<Transform>(true).Where(c => c != target && c.parent == target).ToArray();
+            //If children are null or empty returns.
+            if (ArrayUtils.IsNullOrEmpty(directUnsortedChildren))
+            {
+                if (debug)
+                {
+                    Debug.LogWarning(LogName + $"{nameof(SortChildrenAlphabeticalInternal)} {nameof(target)} doesn't have children.", target);
+                }
+                return;
+            }
+      
+#if UNITY_EDITOR
+            if (editor)
+            {
+                Undo.RecordObject(target.gameObject, "Alphabetical Children Sorting");
+            }
+#endif
+            //Unparent these children
+            foreach (Transform child in directUnsortedChildren)
+            {
+#if UNITY_EDITOR
+                if (editor)
+                {
+                    Undo.SetTransformParent(child, null, "Alphabetical Children Sorting");
+                }
+#endif
+                child.SetParent(null, true);
+            }
+
+            //Sort children and reparent it again
+            List<Transform> sortedChildren = directUnsortedChildren.OrderBy(c => c.gameObject.name).ToList();
+            foreach (var child in sortedChildren)
+            {
+                child.SetParent(target, true);
+            }
+
+            //If recursive also sorted children are involved each to sort themselves.
+            if (recursive)
+            {
+                foreach (var child in sortedChildren)
+                {
+                    SortChildrenAlphabeticalInternal(child, true, true);
+                }
+            }
+            
+#if UNITY_EDITOR
+            if (editor)
+            {
+                EditorUtility.SetDirty(target.gameObject);
+            }
+#endif
+
+            if (debug)
+            {
+                Debug.Log(LogName + $"{nameof(SortChildrenAlphabeticalInternal)} sorted {sortedChildren.Count.ToString()} children of {target.gameObject.name}.", target);
+            }
+        }
+        
+        #endregion
+        
+        #endregion
+        
+        #region Transform → Methods
+         
+        #region → Position
         
         /// <summary>
         /// Set local position X
@@ -158,8 +429,8 @@ namespace CippSharp.Core.Utils
 
         
         #endregion
-
-        #region Rotation
+        
+        #region → Rotation
 
         /// <summary>
         /// Set local euler angles X value
@@ -235,7 +506,7 @@ namespace CippSharp.Core.Utils
         
         #endregion
 
-        #region Scale
+        #region → Scale
 
         /// <summary>
         /// Set Local Scale X
@@ -286,7 +557,7 @@ namespace CippSharp.Core.Utils
         
         #endregion
         
-        #region Resets
+        #region → Resets
         
         /// <summary>
         /// Reset local position of a transform
@@ -342,7 +613,107 @@ namespace CippSharp.Core.Utils
             target.SetParent(originalParent, true);
         }
         
+        #region → Reset (preserve children transforms)
+
+        /// <summary>
+        /// Resets values of context transform while preserve children transforms.
+        /// </summary>
+        /// <param name="target"></param>
+        public static void ResetTransformPreservingChildrenTransforms(Transform target)
+        {
+            ResetTransformPreservingChildrenTransformsInternal(target, false, false);
+        }
+
+        /// <summary>
+        /// Resets values of context transform while preserve children transforms.
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="editor"></param>
+        /// <param name="debug"></param>
+        public static void ResetTransformPreservingChildrenTransforms(Transform target, bool editor, bool debug = false)
+        {
+            ResetTransformPreservingChildrenTransformsInternal(target, editor, debug);
+        }
+
+        /// <summary>
+        /// Resets values of context transform while preserve children transforms.
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="editor"></param>
+        /// <param name="debug"></param>
+        private static void ResetTransformPreservingChildrenTransformsInternal(Transform target, bool editor, bool debug = false)
+        {
+            //If target is null returns.
+            if (target == null)
+            {
+                if (debug)
+                {
+                    Debug.LogError(LogName + $"{nameof(ResetTransformPreservingChildrenTransformsInternal)} {nameof(target)} is null.");
+                }
+                return;
+            }
+            
+            Transform[] directUnsortedChildren = target.GetComponentsInChildren<Transform>(true).Where(c => c != target && c.parent == target).ToArray();
+            //If children are null or empty return.
+            if (ArrayUtils.IsNullOrEmpty(directUnsortedChildren))
+            {
+                if (debug)
+                {
+                    Debug.LogWarning(LogName + $"{nameof(ResetTransformPreservingChildrenTransformsInternal)} {nameof(target)} doesn't have children.");
+                }
+
+                ResetLocals(target);
+                return;
+            }
+            
+#if UNITY_EDITOR
+            if (editor)
+            {
+                Undo.RecordObjects(directUnsortedChildren.Cast<Object>().ToArray(), "Reposition");
+            }
+#endif
+            foreach (var unsortedChild in directUnsortedChildren)
+            {
+                unsortedChild.SetParent(null, true);
+            }
+            
+            ResetLocals(target);
+            
+            foreach (var unsortedChild in directUnsortedChildren)
+            {
+                unsortedChild.SetParent(target, true);
+            }
+                       
+#if UNITY_EDITOR
+            if (editor)
+            {
+                EditorUtility.SetDirty(target.gameObject);
+            }
+#endif
+            if (debug)
+            {
+                Debug.Log(LogName + $"{nameof(ResetTransformPreservingChildrenTransformsInternal)} transform reset preserving children transform should be completed successful.", target);
+            }
+        }
+
         #endregion
+        
+        #endregion
+   
+        #region → Matrix
+
+        /// <summary>
+        /// Matrix TRS from Transform. Default is World Space.
+        /// </summary>
+        /// <param name="transform"></param>
+        /// <returns></returns>
+        public static Matrix4x4 TRS(Transform transform)
+        {
+            return Matrix4x4.TRS(transform.position, transform.rotation, transform.lossyScale);
+        } 
+
+        #endregion
+        
         
         /// <summary>
         /// Returns true if target transform is in camera view.
@@ -377,115 +748,12 @@ namespace CippSharp.Core.Utils
             return myAngle < angle && yourAngle < angle;
         }
         
-        #region Brothers
-
-        /// <summary>
-        /// It finds a transform that is brother of the target.
-        /// </summary>
-        /// <returns></returns>
-        public static Transform FindBrother(Transform target, string brotherName)
-        {
-            Transform parent = target.parent;
-            if (parent == null)
-            {
-                var brothers = target.gameObject.scene.GetRootGameObjects();
-                foreach (var brother in brothers)
-                {
-                    if (brother.name != brotherName)
-                    {
-                        continue;
-                    }
-					
-                    return brother.transform;
-                }
-            }
-            else
-            {
-                for (int i = 0; i < parent.childCount; i++)
-                {
-                    var child = parent.GetChild(i);
-                    if (child.gameObject.name != brotherName)
-                    {
-                        continue;
-                    }
-
-                    return child;
-                }
-            }
-			
-            return null;
-        }
-
         #endregion
 
-        #region Contains
-
-        /// <summary>
-        /// Retrieve true if target is children.
-        /// </summary>
-        /// <param name="root"></param>
-        /// <param name="target"></param>
-        /// <returns></returns>
-        public static bool Contains(Transform root, GameObject target)
-        {
-            return ContainsInternal(root, target, null, false);
-        }
         
-        /// <summary>
-        /// Retrieve true if target is children.
-        /// </summary>
-        /// <param name="root"></param>
-        /// <param name="target"></param>
-        /// <param name="debugContext"></param>
-        /// <returns></returns>
-        public static bool Contains(Transform root, GameObject target, Object debugContext)
-        {
-            return ContainsInternal(root, target, debugContext, true);
-        }
+        #region Transform → Path
 
-        /// <summary>
-        /// Retrieve true if target is children.
-        /// </summary>
-        /// <param name="root"></param>
-        /// <param name="target"></param>
-        /// <param name="debugContext"></param>
-        /// <param name="debug"></param>
-        /// <returns></returns>
-        private static bool ContainsInternal(Transform root, GameObject target, Object debugContext, bool debug)
-        {
-            string logName = debug ? StringUtils.LogName(debugContext) : string.Empty;
-			
-            if (root == null)
-            {
-                if (debug)
-                {
-                    Debug.LogError(logName+"Invalid "+nameof(root)+".", debugContext);
-                }
-                return false;
-            }
-
-            if (target == null)
-            {
-                if (debug)
-                {
-                    Debug.LogError(logName + "Invalid " + nameof(target) + ".", debugContext);
-                }
-                return false;
-            }
-
-            Transform[] children = root.GetComponentsInChildren<Transform>(true);
-            foreach (Transform child in children)
-            {
-                if (child.gameObject == target)
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        #endregion
+        #region → Path
         
         /// <summary>
         /// Retrieve transform hierarchy path as string.
@@ -504,18 +772,18 @@ namespace CippSharp.Core.Utils
         }
 
         /// <summary>
-        /// Retrieve transform hierarchy path as string.
+        /// Retrieve transform hierarchy relative path as string.
         /// </summary>
         /// <param name="transform"></param>
-        /// <param name="stop"></param>
+        /// <param name="root"></param>
         /// <returns></returns>
-        public static string GetTransformRelativePath(Transform transform, Transform stop)
+        public static string GetTransformRelativePath(Transform transform, Transform root)
         {
             string path = transform.gameObject.name;
             while (transform.parent != null)
             {
                 transform = transform.parent;
-                if (transform == stop)
+                if (transform == root)
                 {
                     break;
                 }
@@ -523,7 +791,11 @@ namespace CippSharp.Core.Utils
             }
             return path;
         }
+        
+        #endregion
 
+        #region → Nest Level
+       
         /// <summary>
         /// Retrieve transform nest level.
         /// </summary>
@@ -539,230 +811,43 @@ namespace CippSharp.Core.Utils
             }
             return level;
         }
-
-        #region Sort Transform Utils
-
+        
+        #endregion
+        
+        #endregion
+        
+        
+        #region Transform → Editor Utils
 #if UNITY_EDITOR
+        #region → Sort Children
+        /// <summary>
+        /// Sort children alphabetical
+        /// </summary>
+        /// <param name="command"></param>
         [MenuItem("CONTEXT/FolderObject/Sort Children Alphabetical")]
         [MenuItem("CONTEXT/Transform/Sort Children Alphabetical")]
         private static void SortChildrenAlphabetical(MenuCommand command)
         {
             // The transform component can be extracted from the menu command using the context field.
             Transform transform = command.context as Transform;
-            SortChildrenAlphabetical(transform, false, true);
+            SortChildrenAlphabeticalInternal(transform, false, true);
         }
-#endif
-        #region Sort Children Alphabetical
-
-        /// <summary>
-        /// Sort target children alphabetical.
-        /// </summary>
-        /// <param name="target"></param>
-        /// <param name="recursive"></param>
-        /// <param name="debug"></param>
-        public static void SortChildrenAlphabetical(Transform target, bool recursive, bool debug = false)
-        {
-            string log = null;
-            //If target is null returns.
-            if (target == null)
-            {
-                if (debug)
-                {
-                    log = "Target is null";
-                    Debug.LogError(LogName + log);
-                }
-                return;
-            }
-            
-            Transform[] directUnsortedChildren = target.GetComponentsInChildren<Transform>(true).Where(c => c != target && c.parent == target).ToArray();
-            //If children are null or empty returns.
-            if (ArrayUtils.IsNullOrEmpty(directUnsortedChildren))
-            {
-                if (debug)
-                {
-                    log = "Target doesn't have children " + directUnsortedChildren.Length.ToString();
-                    Debug.LogWarning(LogName + log, target);
-                }
-                return;
-            }
-      
-#if UNITY_EDITOR
-            Undo.RecordObject(target.gameObject, "Alphabetical Children Sorting");
-#endif
-            //Unparent these children
-            foreach (Transform child in directUnsortedChildren)
-            {
-#if UNITY_EDITOR
-                Undo.SetTransformParent(child, null, "Alphabetical Children Sorting");
-#endif
-                child.SetParent(null, true);
-            }
-
-            //Sort children and reparent it again
-            List<Transform> sortedChilren = directUnsortedChildren.OrderBy(c => c.gameObject.name).ToList();
-            foreach (var child in sortedChilren)
-            {
-                child.SetParent(target, true);
-            }
-
-            //If recursive also sorted children are involved each to sort themselves.
-            if (recursive)
-            {
-                foreach (var child in sortedChilren)
-                {
-                    SortChildrenAlphabetical(child, true);
-                }
-            }
-            
-#if UNITY_EDITOR
-            EditorUtility.SetDirty(target.gameObject);
-#endif
-
-            if (debug)
-            {
-                log = string.Format("Sorted {0} children of {1}.", sortedChilren.Count.ToString(), target.gameObject.name);
-                Debug.Log(LogName + log, target);
-            }
-        }
-        
         #endregion
-
-#if UNITY_EDITOR
+        
+        #region → Reset
+        /// <summary>
+        /// Reset values of context transform while preserve children transforms.
+        /// </summary>
+        /// <param name="command"></param>
         [MenuItem("CONTEXT/Transform/Reset (preserve children transform)")]
         private static void ResetTransformPreservingChildrenTransforms(MenuCommand command)
         {
             // The transform component can be extracted from the menu command using the context field.
             Transform transform = command.context as Transform;
-            ResetTransformPreservingChildrenTransforms(transform, false, true);
+            ResetTransformPreservingChildrenTransformsInternal(transform, false, true);
         }
-#endif
-        
-        #region Transform Reset Preserving Children Transforms
-
-        public static void ResetTransformPreservingChildrenTransforms(Transform target, bool recursive, bool debug = false)
-        {
-            string log = null;
-            //If target is null returns.
-            if (target == null)
-            {
-                if (debug)
-                {
-                    log = "Target is null";
-                    Debug.LogError(LogName + log);
-                }
-                return;
-            }
-            
-            Transform[] directUnsortedChildren = target.GetComponentsInChildren<Transform>(true).Where(c => c != target && c.parent == target).ToArray();
-            //If children are null or empty returns.
-            if (ArrayUtils.IsNullOrEmpty(directUnsortedChildren))
-            {
-                if (debug)
-                {
-                    log = "Target doesn't have children " + directUnsortedChildren.Length.ToString();
-                    Debug.LogWarning(LogName + log, target);
-                }
-
-                ResetLocals(target);
-                return;
-            }
-            
-#if UNITY_EDITOR
-            Undo.RecordObjects(directUnsortedChildren.Cast<Object>().ToArray(), "Reposition");
-#endif
-            foreach (var unsortedChild in directUnsortedChildren)
-            {
-                unsortedChild.SetParent(null, true);
-            }
-            
-            ResetLocals(target);
-            
-            foreach (var unsortedChild in directUnsortedChildren)
-            {
-                unsortedChild.SetParent(target, true);
-            }
-                       
-#if UNITY_EDITOR
-            EditorUtility.SetDirty(target.gameObject);
-#endif
-            if (debug)
-            {
-                log = " transform reset preserving children transform should be completed successful.";
-                Debug.Log(LogName + log, target);
-            }
-        }
-
         #endregion
-        
-        #endregion
-
-        #region Children Find
-
-        /// <summary>
-        /// Find a direct children even if he is inactive!
-        /// </summary>
-        /// <param name="target"></param>
-        /// <param name="childName">direct child</param>
-        /// <returns></returns>
-        public static Transform FindInactive(Transform target, string childName)
-        {
-            for (int i = 0; i < target.childCount; i++)
-            {
-                Transform child = target.GetChild(i);
-                if (child.gameObject.name == childName)
-                {
-                    return child/*e*/;
-                }
-            }
-
-            return null;
-        }
-        
-        /// <summary>
-        /// Retrieve transform direct children.
-        /// </summary>
-        /// <param name="transform"></param>
-        /// <returns></returns>
-        public static List<Transform> GetDirectChildren(Transform transform)
-        {
-            List<Transform> children = new List<Transform>();
-            for (int i = 0; i < transform.childCount; i++)
-            {
-                Transform child = transform.GetChild(i);
-                children.Add(child);
-            }
-            return children;
-        }
-
-        public static bool TryFind(Transform root, string path, out Transform child)
-        {
-            child = null;
-            try
-            {
-                child = root.Find(path);
-                return child != null;
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"Error {e.Message} during find at {path}.", root);
-                return false;
-            }
-        }
-        
-        #endregion
-
-        #region Matrix
-
-        /// <summary>
-        /// Matrix TRS from Transform. Default is World Space.
-        /// </summary>
-        /// <param name="transform"></param>
-        /// <returns></returns>
-        public static Matrix4x4 TRS(Transform transform)
-        {
-            return Matrix4x4.TRS(transform.position, transform.rotation, transform.lossyScale);
-        } 
-
+#endif
         #endregion
     }
 }

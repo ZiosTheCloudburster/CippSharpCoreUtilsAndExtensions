@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace CippSharp.Core
+namespace CippSharp.Core.Extensions
 {
     using Vector4Utils = CippSharp.Core.Utils.Vector4Utils;
     
