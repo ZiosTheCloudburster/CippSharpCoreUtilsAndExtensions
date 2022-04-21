@@ -2,11 +2,13 @@
 //
 // Author: Alessandro Salani (Cippo)
 //
+
 using System;
 using Object = UnityEngine.Object;
 
 namespace CippSharp.Core.EditorUtils
 {
+	[Obsolete("Use EditorObjectUtils instead.")]
 	public static class EditorApplicationUtils
 	{
 		[Obsolete("2021/08/14 → moved to EditorObjectUtils. This will be removed in future versions.")]

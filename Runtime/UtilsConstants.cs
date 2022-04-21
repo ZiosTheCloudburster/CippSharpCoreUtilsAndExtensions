@@ -22,10 +22,7 @@ namespace CippSharp.Core
         /// </summary>
         public const string ComponentSerializedPropertyName = "m_Component";
 
-        /// <summary>
-        /// UnityEditor's default name for inspected objects local identfier. 
-        /// </summary>
-        public const string LocalIdentfierInFilePropertyName = "m_LocalIdentfierInFile";
+    
         
         /// <summary>
         /// Unity's default name for enabled property.

@@ -1,71 +1,46 @@
-﻿#if UNITY_EDITOR
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using CippSharp.Core.Utils;
-using UnityEditor;
-using UnityEngine;
-using Object = UnityEngine.Object;
+﻿//
+// Author: Alessandro Salani (Cippo)
+//
 
 namespace CippSharp.Core.EditorUtils
 {
+	using Object = UnityEngine.Object;
+	using ArrayUtils = CippSharp.Core.Utils.ArrayUtils;
+	
     public static class EditorObjectUtils
     {
-	    #region Set Dirty
-		
+	    //These methods are when not in editor 
+	    #region → Set Dirty
+	    
+	    #region → Object
+	    
 		/// <summary>
 		/// Set target object dirty.
 		/// </summary>
 		/// <param name="target"></param>
 		public static void SetDirty(Object target)
 		{
+#if UNITY_EDITOR
 			if (target == null)
 			{
 				return;
 			}
 			
-			EditorUtility.SetDirty(target);
+			UnityEditor.EditorUtility.SetDirty(target);
+#endif
 		}
-
+	    
+	    #endregion
+	    
+	    #region → Object[]
+	    
 		/// <summary>
 		/// Set target objects dirty.
 		/// </summary>
 		/// <param name="targets"></param>
 		public static void SetDirty(Object[] targets)
 		{
-			SetDirtyInternal(targets, null, false);
-		}
-		
-		/// <summary>
-		/// Set target objects dirty.
-		/// </summary>
-		/// <param name="targets"></param>
-		/// <param name="debugContext"></param>
-		public static void SetDirty(Object[] targets, Object debugContext)
-		{
-			SetDirtyInternal(targets, debugContext, true);
-		}
-
-		/// <summary>
-		/// Set target objects dirty.
-		/// </summary>
-		/// <param name="targets"></param>
-		/// <param name="debugContext"></param>
-		/// <param name="debug"></param>
-		public static void SetDirtyInternal(Object[] targets, Object debugContext, bool debug)
-		{
-			string logName = debug ? StringUtils.LogName(debugContext) : string.Empty;
-			if (!Application.isEditor)
-			{
-				if (debug)
-				{
-					Debug.LogWarning(logName + nameof(SetDirty)+"() method works only in editor.", debugContext);
-				}
-				return;
-			}
-			
-#if UNITY_EDITOR
+#if UNITY_EDITOR			
 			if (ArrayUtils.IsNullOrEmpty(targets))
 			{
 				return;
@@ -73,13 +48,18 @@ namespace CippSharp.Core.EditorUtils
 			
 			foreach (var o in targets)
 			{
-				EditorUtility.SetDirty(o);
+				if (o == null)
+				{
+					continue;
+				}
+
+				UnityEditor.EditorUtility.SetDirty(o);
 			}
 #endif
 		}
+	    
+	    #endregion    
 		
 		#endregion
     }
 }
-#endif
-

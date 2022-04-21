@@ -17,7 +17,8 @@ namespace CippSharp.Core.EditorUtils
     /// <param name="context"></param>
     public delegate void GenericRefAction(ref object context);
     
-    /// <summary>
+    
+    /// <summary> 
     /// Custom Delegate to draw a serialized property
     /// </summary>
     /// <param name="property"></param>
