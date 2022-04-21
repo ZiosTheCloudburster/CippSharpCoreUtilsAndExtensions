@@ -2,12 +2,12 @@
 using Object = UnityEngine.Object;
 
 #if UNITY_EDITOR
-#if UNITY_2018_3_OR_NEWER
+	#if UNITY_2018_3_OR_NEWER
 using UnityEditor.Experimental.SceneManagement;
-#endif
+	#endif
 #endif
 
-namespace CippSharp.Core
+namespace CippSharp.Core.Utils
 {
     public static class PrefabUtils
     {
@@ -18,11 +18,11 @@ namespace CippSharp.Core
         public static bool IsPrefabContext()
         {
 #if UNITY_EDITOR
-#if UNITY_2018_3_OR_NEWER
+	#if UNITY_2018_3_OR_NEWER
             return PrefabStageUtility.GetCurrentPrefabStage() != null;
-#else
+	#else
 			return false;
-#endif
+	#endif
 #else
 			return false;
 #endif
@@ -37,14 +37,14 @@ namespace CippSharp.Core
         public static bool IsPrefab<T>(T interestedObject) where T : Object
         {
 #if UNITY_EDITOR
-#if UNITY_2019_4_OR_NEWER
+	#if UNITY_2019_4_OR_NEWER
 	        bool isPartOfAnyPrefab = UnityEditor.PrefabUtility.IsPartOfAnyPrefab(interestedObject);
 	        if (isPartOfAnyPrefab)
 	        {
 		        return true;
 	        }
 
-	        GameObject g = interestedObject as GameObject;
+	        GameObject g = GameObjectUtils.From(interestedObject);
 	        if (g != null)
 	        {
 		        var stage = PrefabStageUtility.GetCurrentPrefabStage();
@@ -54,11 +54,11 @@ namespace CippSharp.Core
 	        {
 		        return false;
 	        }
-#elif UNITY_2018_3_OR_NEWER
+	#elif UNITY_2018_3_OR_NEWER
             return PrefabStageUtility.GetCurrentPrefabStage() != null;
-#else
+	#else
 			return false;
-#endif
+	#endif
 #else
 			return false;
 #endif

@@ -2,6 +2,8 @@
 
 namespace CippSharp.Core
 {
+    using Vector4Utils = CippSharp.Core.Utils.Vector4Utils;
+    
     public static class Vector4Extensions
     {
         /// <summary>

@@ -31,5 +31,16 @@ namespace CippSharp.Core
             }
         }
 
+        /// <summary>
+        /// Allow to retrieve the right mesh when needed.
+        /// If application is not playing shared mesh is retrieved instead of mesh.
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <returns></returns>
+        public static Mesh GetMeshSafe(MeshFilter filter)
+        {
+            bool isPlaying = Application.isPlaying;
+            return isPlaying ? filter.mesh : filter.sharedMesh;
+        }
     }
 }

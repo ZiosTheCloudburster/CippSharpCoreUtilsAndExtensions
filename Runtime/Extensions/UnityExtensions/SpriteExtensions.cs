@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
 
-namespace CippSharp.Core
+namespace CippSharp.Core.Extensions
 {
+    using SpriteUtils = CippSharp.Core.Utils.SpriteUtils;
+    
     public static class SpriteExtensions
     {
         /// <summary>

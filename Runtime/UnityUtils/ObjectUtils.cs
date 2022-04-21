@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using CippSharp.Core;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -16,6 +15,7 @@ namespace CippSharp.Core.Utils
 	
 	public static class ObjectUtils
 	{
+		
 		#region Generic Object → Is 
 		
 		/// <summary>
@@ -85,19 +85,8 @@ namespace CippSharp.Core.Utils
 		public static T FindObjectOfType<T>() where T : Object
 		{
 			//Unity retrieve all objects of that T even inactive objects and prefabs.
-			T[] array = Resources.FindObjectsOfTypeAll<T>();
-			//If array is null or empty retrieve null.
-			if (ArrayUtils.IsNullOrEmpty(array))
-			{
-				return null;
-			}
-#if UNITY_EDITOR
-			//Remove prefabs from retrieved array.
-			return array.Where(AssetDatabaseUtils.IsObjectPathNullOrEmpty).FirstOrDefault();
-#else
-			//Retrieve the first element of array.
-			return array.FirstOrDefault();
-#endif
+			//Then remove prefabs from retrieved array.
+			return Resources.FindObjectsOfTypeAll<T>().FirstOrDefault(IsValidObjectOfType);
 		}
 
 		/// <summary>
@@ -108,26 +97,10 @@ namespace CippSharp.Core.Utils
 		public static T FindObjectOfType<T>(Predicate<T> predicate) where T : Object
 		{
 			//Unity retrieve all objects of that T even inactive objects and prefabs.
-			T[] array = Resources.FindObjectsOfTypeAll<T>();
-			//If array is null or empty retrieve null.
-			if (ArrayUtils.IsNullOrEmpty(array))
-			{
-				return null;
-			}
-			
-			//Remove prefabs from retrieved array + predicate
-			return array.Where(IsValidObjectOfType).FirstOrDefault();
-			bool IsValidObjectOfType(T t)
-			{
-				return 
-#if UNITY_EDITOR
-					AssetDatabaseUtils.IsObjectPathNullOrEmpty(t) && 
-#endif
-					predicate.Invoke(t);
-			}
+			//Then remove prefabs from retrieved array + predicate
+			return Resources.FindObjectsOfTypeAll<T>().FirstOrDefault(t => IsValidObjectOfType(t, predicate));
 		}
-
-
+		
 
 		/// <summary>
 		/// A method to find components (suggested to do during initialization) that are present in scene even if inactive.
@@ -140,13 +113,8 @@ namespace CippSharp.Core.Utils
 		public static T[] FindObjectsOfType<T>() where T : Object
 		{
 			//Retrieve all objects of that T even inactive objects and prefabs.
-			T[] array = Resources.FindObjectsOfTypeAll<T>();
-#if UNITY_EDITOR
-			//Remove prefabs from retrieved array.
-			return array.Where(AssetDatabaseUtils.IsObjectPathNullOrEmpty).ToArray();
-#else
-			return array;
-#endif
+			//Then remove prefabs from retrieved array.
+			return Resources.FindObjectsOfTypeAll<T>().Where(IsValidObjectOfType).ToArray();
 		}
 
 		/// <summary>
@@ -160,18 +128,8 @@ namespace CippSharp.Core.Utils
 		public static T[] FindObjectsOfType<T>(Predicate<T> predicate) where T : Object
 		{
 			//Retrieve all objects of that T even inactive objects and prefabs.
-			T[] array = Resources.FindObjectsOfTypeAll<T>();
-			
-			//Remove prefabs from retrieved array + predicate
-			return array.Where(IsValidObjectOfType).ToArray();
-			bool IsValidObjectOfType(T t)
-			{
-				return 
-#if UNITY_EDITOR
-					AssetDatabaseUtils.IsObjectPathNullOrEmpty(t) && 
-#endif
-					predicate.Invoke(t);
-			}
+			//Then remove prefabs from retrieved array + predicate
+			return Resources.FindObjectsOfTypeAll<T>().Where(t => IsValidObjectOfType(t, predicate)).ToArray();
 		}
 
 		///  <summary>
@@ -187,62 +145,127 @@ namespace CippSharp.Core.Utils
 		public static IEnumerable<K> SelectFromObjectsOfType<T, K>(Predicate<T> predicate, Func<T, K> func) where T : Object
 		{
 			//Retrieve all objects of that T even inactive objects and prefabs.
-			T[] array = Resources.FindObjectsOfTypeAll<T>();
-			
-			//Remove prefabs from retrieved array + predicate
-			return array.Where(IsValidObjectOfType).Select(func);
-			bool IsValidObjectOfType(T t)
-			{
-				return 
-#if UNITY_EDITOR
-					AssetDatabaseUtils.IsObjectPathNullOrEmpty(t) && 
-#endif
-					predicate.Invoke(t);
-			}
+			//Then remove prefabs from retrieved array + predicate
+			return Resources.FindObjectsOfTypeAll<T>().Where(t => IsValidObjectOfType(t, predicate)).Select(func);
 		}
 
 		#endregion
 		
-		#endregion
+		#region → Is Valid Object of Type
 		
-		
-//		#region Find or Get UnityEngine.Object of Type
+		/// <summary>
+		/// Is this a valid object of type?
+		///
+		/// To be valid it needs to have object path null or empty!
+		/// </summary>
+		/// <param name="target"></param>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		public static bool IsValidObjectOfType<T>(T target) where T : Object
+		{
+			return
+#if UNITY_EDITOR
+				AssetDatabaseUtils.IsObjectPathNullOrEmpty(target);
+#else
+				true;
+#endif
+		}
 
-		
-		#region Get
+		///  <summary>
+		///  Is this a valid object of type?
+		/// 
+		///  To be valid it needs to have object path null or empty and that predicate is verified
+		///  </summary>
+		///  <param name="target"></param>
+		/// <param name="predicate"></param>
+		/// <typeparam name="T"></typeparam>
+		///  <returns></returns>
+		public static bool IsValidObjectOfType<T>(T target, Predicate<T> predicate) where T : Object
+		{
+			return 
+#if UNITY_EDITOR
+				AssetDatabaseUtils.IsObjectPathNullOrEmpty(target) && 
+#endif
+				predicate.Invoke(target);
+		}
+
+		#endregion
+
+		#region → Get Object(s) of Type
 		
 		/// <summary>
 		/// Retrieve a hierarchical sorted component lists.
 		/// 
-		/// Note: it seems that it doesn't retrieve objects on "DontDestroyOnLoad".
-		/// From now on if you used this to get and call methods on interfaces use <see cref="InterfacesUtils"/> instead.
+		/// WARNING: This doesn't retrieve objects on "DontDestroyOnLoad".
 		/// </summary>
 		/// <param name="affectInactive"></param>
 		/// <typeparam name="T"></typeparam>
 		/// <returns></returns>
-		public static T[] GetAllComponents<T>(bool affectInactive = false)
+		public static List<T> GetAllComponents<T>(bool affectInactive = false)
 		{
 			List<T> sortedComponents = new List<T>();
+			
 			for (int i = 0; i < SceneManager.sceneCount; i++)
 			{
 				Scene currentScene = SceneManager.GetSceneAt(i);
-				var roots = currentScene.GetRootGameObjects();
-				foreach (var gameObject in roots)
+				GameObject[] roots = currentScene.GetRootGameObjects();
+				foreach (GameObject gameObject in roots)
 				{
 					sortedComponents.AddRange(gameObject.GetComponentsInChildren<T>(affectInactive));
 				}
 			}
-			return sortedComponents.ToArray();
+			
+			return sortedComponents;
 		}
-		
-		#endregion
-	
-//		#endregion
-		
-		#region Get UnityEngine.Object Instance ID
 
 		/// <summary>
-		/// Retrieve object id, returns 0 if it fails.
+		/// Retrieve a hierarchical sorted component lists.
+		/// 
+		/// WARNING: This doesn't retrieve objects on "DontDestroyOnLoad".
+		/// </summary>
+		/// <param name="predicate"></param>
+		/// <param name="affectInactive"></param>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		public static List<T> GetAllComponents<T>(Predicate<T> predicate, bool affectInactive = false)
+		{
+			List<T> sortedComponents = new List<T>();
+			
+			for (int i = 0; i < SceneManager.sceneCount; i++)
+			{
+				Scene currentScene = SceneManager.GetSceneAt(i);
+				GameObject[] roots = currentScene.GetRootGameObjects();
+				foreach (GameObject gameObject in roots)
+				{
+					sortedComponents.AddRange(gameObject.GetComponentsInChildren<T>(affectInactive).Where(predicate.Invoke));
+				}
+			}
+			
+			return sortedComponents;
+		}
+
+		#endregion
+		
+		#endregion
+		
+		
+		#region Object → Methods
+
+		/// <summary>
+		/// <see cref="GameObjectUtils.BroadcastAll"/>
+		/// </summary>
+		/// <param name="methodName"></param>
+		/// <param name="parameter"></param>
+		/// <param name="messageOptions"></param>
+		[Obsolete("2021/08/14 → Moved to GameObjectUtils.BroadcastAll. This will be removed in future versions")]
+		public static void BroadcastAll(string methodName, object parameter = null, SendMessageOptions messageOptions = SendMessageOptions.DontRequireReceiver)
+		{
+			//GameObjectUtils.BroadcastAll(methodName, parameter, messageOptions);
+			return;
+		}
+		
+		/// <summary>
+		/// Retrieve object instance id, returns 0 if it fails.
 		/// </summary>
 		/// <param name="target"></param>
 		/// <returns></returns>
@@ -251,11 +274,9 @@ namespace CippSharp.Core.Utils
 			return target != null ? target.GetInstanceID() : 0;
 		}
 		
-		#endregion
-		
-		#region Safe Destroy of UnityEngine.Object
+		#region Object → Safe Destroy of UnityEngine.Object
 
-		#region Single Object
+		#region → Object
 	
 		/// <summary>
 		/// Safely destroy a single Object.
@@ -290,7 +311,7 @@ namespace CippSharp.Core.Utils
 			{
 				if (debug)
 				{
-					Debug.LogError(logName+"I cannot destroy a target already null!", debugContext);
+					Debug.LogError(logName+$"{nameof(SafeDestroyInternal)} I cannot destroy a target already null!", debugContext);
 				}
 				return true;
 			}
@@ -313,7 +334,7 @@ namespace CippSharp.Core.Utils
 			{
 				if (debug)
 				{
-					Debug.LogError(logName + e.Message, debugContext);
+					Debug.LogError(logName + $"{nameof(SafeDestroyInternal)} failed to destroy {nameof(target)}. Caught exception: {e.Message}.", debugContext);
 				}
 				return false;
 			}
@@ -321,7 +342,7 @@ namespace CippSharp.Core.Utils
 		
 		#endregion
 
-		#region Objects Array 
+		#region → Object[] 
 		
 		/// <summary>
 		/// Safely destroys Objects.
@@ -353,20 +374,22 @@ namespace CippSharp.Core.Utils
 		{
 			string logName = (debug) ? StringUtils.LogName(debugContext) : string.Empty;
 
-			try
+			bool allDestroyed = true;
+			bool isPlaying = Application.isPlaying;
+			foreach (Object o in targets)
 			{
-				bool isPlaying = Application.isPlaying;
-				foreach (Object o in targets)
+				if (o == null)
 				{
-					if (o == null)
+					if (debug)
 					{
-						if (debug)
-						{
-							Debug.LogError(logName+"I cannot destroy an object already null!", debugContext);
-						}
-						continue;
+						Debug.LogError(logName + $"{nameof(SafeDestroyInternal)} an object already null!", debugContext);
 					}
-				
+
+					continue;
+				}
+
+				try
+				{
 					if (isPlaying)
 					{
 						Object.Destroy(o);
@@ -375,23 +398,26 @@ namespace CippSharp.Core.Utils
 					{
 						Object.DestroyImmediate(o);
 					}
-				}
 
-				return true;
-			}
-			catch (Exception e)
-			{
-				if (debug)
-				{
-					Debug.LogError(logName+e.Message, debugContext);
 				}
-				return false;
+				catch (Exception e)
+				{
+					if (debug)
+					{
+						Debug.LogError(logName +$"{nameof(SafeDestroyInternal)} failed to destroy a target in targets. Caught exception: {e.Message}.", debugContext);
+					}
+
+					allDestroyed = false;
+					continue;
+				}
 			}
+
+			return allDestroyed;
 		}
 		
 		#endregion
 
-		#region with Requiring Components
+		#region → Object and his Requiring Components
 		
 		/// <summary>
 		///	Safe Destroys a component and all components that are requiring it.
@@ -425,21 +451,22 @@ namespace CippSharp.Core.Utils
 			{
 				if (debug)
 				{
-					Debug.LogError(logName + "I cannot destroy a target already null!", debugContext);
+					Debug.LogError(logName + $"{nameof(SafeDestroyWithRequiringComponentsInternal)} I cannot destroy a target already null!", debugContext);
 				}
 				return;
 			}
 			
 			Type componentType = component.GetType();
 			Component[] otherComponents = component.gameObject.GetComponents<Component>();
+			
 			List<Component> componentsToDestroy = new List<Component>();
-			foreach (var otherComponent in otherComponents)
+			foreach (Component otherComponent in otherComponents)
 			{
 				if (otherComponent == null)
 				{
 					if (debug)
 					{
-						Debug.LogWarning(logName+"A component on gameObject "+component.gameObject.name+".", debugContext);
+						Debug.LogWarning(logName+$"{nameof(SafeDestroyWithRequiringComponentsInternal)} A component on gameObject {component.gameObject.name} is null.", debugContext);
 					}
 					continue;
 				}
@@ -460,22 +487,9 @@ namespace CippSharp.Core.Utils
 					}
 
 					Type[] requiredTypes = new[] {requireComponent.m_Type0, requireComponent.m_Type1, requireComponent.m_Type2};
-					for (int i = 0; i < requiredTypes.Length; i++)
-					{
-						Type requiredType = requiredTypes[i];
-						if (requiredType == null)
-						{
-							continue;
-						}
-
-						if (requiredType.IsAssignableFrom(componentType))
-						{
-							componentsToDestroy.Add(otherComponent);
-						}
-					}
+					componentsToDestroy.AddRange(from requiredType in requiredTypes where requiredType != null && requiredType.IsAssignableFrom(componentType) select otherComponent);
 				} 
 			}
-
 			componentsToDestroy.Remove(component);
 
 			if (!ArrayUtils.IsNullOrEmpty(componentsToDestroy))
@@ -492,14 +506,24 @@ namespace CippSharp.Core.Utils
 				}
 			}
 			
-			bool isPlaying = Application.isPlaying;
-			if (isPlaying)
+			try
 			{
-				Object.Destroy(component);
+				bool isPlaying = Application.isPlaying;
+				if (isPlaying)
+				{
+					Object.Destroy(component);
+				}
+				else
+				{
+					Object.DestroyImmediate(component);
+				}
 			}
-			else
+			catch (Exception e)
 			{
-				Object.DestroyImmediate(component);
+				if (debug)
+				{
+					Debug.LogError(logName + $"{nameof(SafeDestroyWithRequiringComponentsInternal)} failed to destroy {nameof(component)}. Caught exception: {e.Message}.", debugContext);
+				}
 			}
 		}
 
@@ -507,7 +531,7 @@ namespace CippSharp.Core.Utils
 		
 		#endregion
 		
-		#region Set UnityEngine.Object enabled property
+		#region Object → Set UnityEngine.Object enabled property
 		
 		/// <summary>
 		/// Set enabled a bunch of targets.
@@ -544,7 +568,7 @@ namespace CippSharp.Core.Utils
 			{
 				if (debug)
 				{
-					Debug.LogWarning(logName +nameof(targets)+" are null or empty.", debugContext);
+					Debug.LogWarning(logName + $"{nameof(SetEnabledInternal)} {nameof(targets)} are null or empty.", debugContext);
 				}
 				return;
 			}
@@ -555,8 +579,7 @@ namespace CippSharp.Core.Utils
 				{
 					if (debug)
 					{
-						string error = "Null component found on components list.";
-						Debug.LogError(logName + error, debugContext);
+						Debug.LogWarning(logName + $"{nameof(SetEnabledInternal)} null target found. Continue.", debugContext);
 					}
 					
 					continue;
@@ -570,8 +593,7 @@ namespace CippSharp.Core.Utils
 				{
 					try
 					{
-						PropertyInfo property;
-						if (ReflectionUtils.HasProperty(target, UtilsConstants.EnabledPropertyName, out property))
+						if (ReflectionUtils.HasProperty(target, UtilsConstants.EnabledPropertyName, out PropertyInfo property))
 						{
 							property.SetValue(target, value, null);
 						}
@@ -580,7 +602,7 @@ namespace CippSharp.Core.Utils
 					{
 						if (debug)
 						{
-							Debug.LogError(logName + e.Message, debugContext);
+							Debug.LogError(logName + $"{nameof(SetEnabledInternal)} failed. Caught exception {e.Message}.", debugContext);
 						}
 					}
 				}
@@ -588,11 +610,8 @@ namespace CippSharp.Core.Utils
 		}
 
 		#endregion
-
-		[Obsolete("2021/08/14 → Moved to GameObjectUtils.BroadcastAll")]
-		public static void BroadcastAll(string methodName, object parameter = null, SendMessageOptions messageOptions = SendMessageOptions.DontRequireReceiver)
-		{
-			return;
-		}
+		
+		#endregion
+		
 	}
 }

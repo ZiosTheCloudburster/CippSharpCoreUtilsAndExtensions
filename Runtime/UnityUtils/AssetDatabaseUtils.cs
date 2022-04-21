@@ -43,17 +43,13 @@ namespace CippSharp.Core.Utils
         /// <returns></returns>
         public static bool IsObjectPathNullOrEmpty<T>(T interestedObject) where T : Object
         {
-#if UNITY_EDITOR
             Object target = interestedObject;
             if (interestedObject is Component c)
             {
                 target = (Object)(c.gameObject);
             }
-            string assetPath = AssetDatabase.GetAssetPath(target);
+            string assetPath = GetAssetPath(target);
             return string.IsNullOrEmpty(assetPath);
-#else
-			return false;
-#endif
         }
 
         #region Load Target Asset

@@ -6,6 +6,8 @@ using UnityEngine;
 
 namespace CippSharp.Core.Extensions
 {
+	using Vector2Utils = CippSharp.Core.Utils.Vector2Utils;
+	
 	public static class Vector2Extensions 
 	{
 		/// <summary>

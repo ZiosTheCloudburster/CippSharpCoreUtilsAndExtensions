@@ -2,6 +2,8 @@
 
 namespace CippSharp.Core.Extensions
 {
+    using LayerMaskUtils = CippSharp.Core.Utils.LayerMaskUtils;
+
     public static class LayerMaskExtensions
     {
         /// <summary>

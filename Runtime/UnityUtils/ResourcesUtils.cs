@@ -7,10 +7,15 @@ using System.Collections;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace CippSharp.Core
+namespace CippSharp.Core.Utils
 {
 	public static class ResourcesUtils
 	{
+		/// <summary>
+		/// A better name for logs
+		/// </summary>
+		private static readonly string LogName = $"[{nameof(ResourcesUtils)}]: ";
+		
 		/// <summary>
 		/// Async loading of an asset and pass it through a callback.
 		///
@@ -29,11 +34,11 @@ namespace CippSharp.Core
 			T loadedAsset = request.asset as T;
 			if (loadedAsset == null)
 			{
-				Debug.LogWarning("The loaded asset is null. Check is resourcesPath and/or his type "+typeof(T).Name+".");
+				Debug.LogWarning(LogName+$"{nameof(AsyncLoadAsset)} The loaded asset is null. Check is resourcesPath and/or his type {typeof(T).Name}.");
 			}
         
 			onAssetLoaded.Invoke(loadedAsset);
-			yield return request;
+			yield break;
 		}
 	}
 }
