@@ -10,6 +10,8 @@ namespace CippSharp.Core.Extensions
     
     public static class ObjectExtensions 
     {
+        #region Generic Object → Is 
+        
         /// <summary>
         /// Retrieve if the give object is valid.
         /// </summary>
@@ -27,7 +29,33 @@ namespace CippSharp.Core.Extensions
         /// <returns></returns>
         public static bool IsNull(this Object o)
         {
-            return ObjectUtils.IsNotNull(o);
+            return ObjectUtils.IsNull(o);
         }
+
+        /// <summary>
+        /// Is Object T ?
+        /// </summary>
+        /// <param name="o"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool Is<T>(this Object o)
+        {
+            return ObjectUtils.Is<T>(o);
+        }
+        		
+        /// <summary>
+        /// Is Object T ?
+        /// Plus retrieve the T result
+        /// </summary>
+        /// <param name="o"></param>
+        /// <param name="result"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool Is<T>(this Object o, out T result)
+        {
+            return ObjectUtils.Is(o, out result);
+        }
+
+        #endregion
     }
 }

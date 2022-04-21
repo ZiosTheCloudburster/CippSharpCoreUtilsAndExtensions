@@ -13,8 +13,21 @@ namespace CippSharp.Core.Extensions
 	
 	public static class GameObjectExtensions
 	{
-		#region Create Child (from TransformUtils)
+		#region GameObject Generic
 		
+		#region → Add Children (from TransformUtils)
+
+		/// <summary>
+		/// Allow to create a child if it isn't found!
+		/// </summary>
+		/// <param name="target"></param>
+		/// <param name="childName"></param>
+		/// <returns></returns>
+		public static GameObject FindOrCreateChild(this GameObject target, string childName)
+		{
+			return TransformUtils.FindOrCreateChild(target.transform, childName).gameObject;
+		}
+
 		/// <summary>
 		/// Creates an empty child
 		/// </summary>
@@ -51,29 +64,8 @@ namespace CippSharp.Core.Extensions
 		}
 		
 		#endregion
-
-		/// <summary>
-		/// It performs a GetComponent on the given GameObject.
-		/// If it fails will add a new component of the given type.
-		/// </summary>
-		/// <param name="target"></param>
-		/// <typeparam name="T"></typeparam>
-		/// <returns></returns>
-		public static T GetOrAddComponent<T>(this GameObject target) where T : Component
-		{
-			return GameObjectUtils.GetOrAddComponent<T>(target);
-		}
-
-		/// <summary>
-		/// Remove target components from a gameobject
-		/// </summary>
-		/// <param name="target"></param>
-		/// <param name="components"></param>
-		/// <param name="hardcore"></param>
-		public static bool TryRemoveComponents(this GameObject target, Type[] components, bool hardcore = false)
-		{
-			return GameObjectUtils.TryRemoveComponents(target, components, hardcore);
-		}
+		
+		#region → Cast
 		
 		/// <summary>
 		/// Retrieve the first gameObject component of type T.
@@ -86,6 +78,23 @@ namespace CippSharp.Core.Extensions
 			return GameObjectUtils.As<T>(gameObject);
 		}
 
+		/// <summary>
+		/// Object to GameObject
+		/// </summary>
+		/// <param name="o"></param>
+		/// <returns></returns>
+		public static GameObject To(this Object o)
+		{
+			return GameObjectUtils.From(o);
+		}
+		
+		#endregion
+		
+		#endregion
+
+		#region GameObject → TransformUtils
+
+		#region → Contains 
 		
 		/// <summary>
 		/// Retrieve true if target is children.
@@ -110,6 +119,8 @@ namespace CippSharp.Core.Extensions
 			return TransformUtils.Contains(root.transform, target, debugContext);
 		}
 		
+		#endregion
+		
 		/// <summary>
 		/// Retrieve transform hierarchy path as string.
 		/// </summary>
@@ -119,5 +130,39 @@ namespace CippSharp.Core.Extensions
 		{
 			return TransformUtils.GetTransformPath(gameObject.transform);
 		}
+		
+		#endregion
+		
+		#region → GetComponent
+		
+		/// <summary>
+		/// It performs a GetComponent on the given GameObject.
+		/// If it fails will add a new component of the given type.
+		/// </summary>
+		/// <param name="target"></param>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		public static T GetOrAddComponent<T>(this GameObject target) where T : Component
+		{
+			return GameObjectUtils.GetOrAddComponent<T>(target);
+		}
+
+		#endregion
+		
+		#region → RemoveComponent
+		
+		/// <summary>
+		/// Remove target components from a GameObject
+		/// </summary>
+		/// <param name="target"></param>
+		/// <param name="components"></param>
+		/// <param name="hardcore"></param>
+		public static bool TryRemoveComponents(this GameObject target, Type[] components, bool hardcore = false)
+		{
+			return GameObjectUtils.TryRemoveComponents(target, components, hardcore);
+		}
+
+		#endregion
+		
 	}
 }
