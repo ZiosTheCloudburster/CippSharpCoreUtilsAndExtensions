@@ -246,8 +246,6 @@ namespace CippSharp.Core.Utils
         
         #endregion
         
-        
-        
         #region → Sorting Children Alphabetical
 
         /// <summary>
@@ -265,6 +263,8 @@ namespace CippSharp.Core.Utils
         /// </summary>
         /// <param name="target"></param>
         /// <param name="recursive"></param>
+        /// <param name="editor"></param>
+        /// <param name="debug"></param>
         public static void SortChildrenAlphabetical(Transform target, bool recursive, bool editor, bool debug = false)
         {
             SortChildrenAlphabeticalInternal(target, recursive, editor, debug);

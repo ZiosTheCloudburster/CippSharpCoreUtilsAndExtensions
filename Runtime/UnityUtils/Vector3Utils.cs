@@ -5,8 +5,12 @@ namespace CippSharp.Core.Utils
 {
     public static class Vector3Utils
     {
+        #region Vector3 → Methods
+
+        #region → ABS
+       
         /// <summary>
-        /// Mathf Abs on each float of Vector3
+        /// Mathf Abs on each float of referred Vector3
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
@@ -16,7 +20,46 @@ namespace CippSharp.Core.Utils
             input.y = Mathf.Abs(input.y);
             input.z = Mathf.Abs(input.z);
         }
+
+        /// <summary>
+        /// Mathf Abs on each float of Vector3
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public static Vector3 Abs(Vector3 input)
+        {
+            Abs(ref input);
+            return input;
+        }
         
+        #endregion
+
+        #region → Clamp Magnitude
+        
+        /// <summary>
+        /// Clamp magnitude of a referred vector
+        /// </summary>
+        /// <param name="vector"></param>
+        /// <param name="maxLength"></param>
+        /// <returns></returns>
+        public static void ClampMagnitude(ref Vector3 vector, float maxLength)
+        {
+            float sqrmag = vector.sqrMagnitude;
+            if (sqrmag > maxLength * maxLength)
+            {
+                float mag = (float) Math.Sqrt(sqrmag);
+                //these intermediate variables force the intermediate result to be
+                //of float precision. without this, the intermediate result can be of higher
+                //precision, which changes behavior.
+                float normalized_x = vector.x / mag;
+                float normalized_y = vector.y / mag;
+                float normalized_z = vector.z / mag;
+                vector.x = normalized_x * maxLength;
+                vector.y = normalized_y * maxLength;
+                vector.z = normalized_z * maxLength;
+            }
+        }
+
         /// <summary>
         /// Clamp magnitude of a vector
         /// </summary>
@@ -25,25 +68,14 @@ namespace CippSharp.Core.Utils
         /// <returns></returns>
         public static Vector3 ClampMagnitude(Vector3 vector, float maxLength)
         {
-            float sqrmag = vector.sqrMagnitude;
-            if (sqrmag > maxLength * maxLength)
-            {
-                float mag = (float)Math.Sqrt(sqrmag);
-                //these intermediate variables force the intermediate result to be
-                //of float precision. without this, the intermediate result can be of higher
-                //precision, which changes behavior.
-                float normalized_x = vector.x / mag;
-                float normalized_y = vector.y / mag;
-                float normalized_z = vector.z / mag;
-                return new Vector3(normalized_x * maxLength,
-                    normalized_y * maxLength,
-                    normalized_z * maxLength);
-            }
+            ClampMagnitude(ref vector, maxLength);
             return vector;
         }
         
+        #endregion
+        
         /// <summary>
-        /// Retrieve the closest point from a vector 3 array.
+        /// Retrieve the closest point from a Vector3[].
         /// </summary>
         /// <param name="point"></param>
         /// <param name="array"></param>
@@ -54,7 +86,7 @@ namespace CippSharp.Core.Utils
             Vector3 closest = Vector3.zero;
             foreach (var v in array)
             {
-                var currentDistance = Vector3.Distance(point, v);
+                float currentDistance = Vector3.Distance(point, v);
                 if (currentDistance < minDistance)
                 {
                     minDistance = currentDistance;
@@ -76,7 +108,7 @@ namespace CippSharp.Core.Utils
             for (int i = 0; i < 3; i++)
             {
                 float element = v[i];
-                if (element == value)
+                if (FloatUtils.IsEqualTo(element, value))
                 {
                     return true;
                 }
@@ -125,7 +157,7 @@ namespace CippSharp.Core.Utils
 			
         }
 
-        #region Random
+        #region → Random
         
         /// <summary>
         /// Retrieve a random vector between two vectors.
@@ -171,6 +203,77 @@ namespace CippSharp.Core.Utils
         }
         
         #endregion
+
+        #region → Set
+
+        /// <summary>
+        /// Set Vector3 X by ref
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="value"></param>
+        public static void SetX(ref Vector3 input, float value)
+        {
+            input.x = value;
+        }
+
+        /// <summary>
+        /// Set Vector3 X
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="value"></param>
+        public static Vector3 SetX(Vector3 input, float value)
+        {
+            SetX(ref input, value);
+            return input;
+        }
+
+        /// <summary>
+        /// Set Vector3 Y by ref
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="value"></param>
+        public static void SetY(ref Vector3 input, float value)
+        {
+            input.y = value;
+        }
+
+        /// <summary>
+        /// Set Vector3 Y
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="value"></param>
+        public static Vector3 SetY(Vector3 input, float value)
+        {
+            SetY(ref input, value);
+            return input;
+        }
+
+        /// <summary>
+        /// Set Vector3 Z by ref
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="value"></param>
+        public static void SetZ(ref Vector3 input, float value)
+        {
+            input.y = value;
+        }
+
+        /// <summary>
+        /// Set Vector3 Z
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="value"></param>
+        public static Vector3 SetZ(Vector3 input, float value)
+        {
+            SetZ(ref input, value);
+            return input;
+        }
+
+        #endregion
+        
+        //Do you like scales? There's need to UnScale sometimes.
+        // → https://youtu.be/wuO_r6Qre9Q
+        #region → UnScale
         
         /// <summary>
         /// Divides every component of this vector by the same component of scale.
@@ -184,39 +287,20 @@ namespace CippSharp.Core.Utils
             a.y /= b.y;
             a.z /= b.z;
         }
-        
-        #region Set
 
         /// <summary>
-        /// Set Vector3 X by ref
+        /// Divides every component of this vector by the same component of scale.
+        /// <see cref="Vector3.Scale"/>
         /// </summary>
-        /// <param name="input"></param>
-        /// <param name="value"></param>
-        public static void SetX(ref Vector3 input, float value)
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        public static Vector3 UnScale(Vector3 a, Vector3 b)
         {
-            input.x = value;
-        }
-
-        /// <summary>
-        /// Set Vector3 Y by ref
-        /// </summary>
-        /// <param name="input"></param>
-        /// <param name="value"></param>
-        public static void SetY(ref Vector3 input, float value)
-        {
-            input.y = value;
+            UnScale(ref a, b);
+            return a;
         }
         
-        
-        /// <summary>
-        /// Set Vector3 Z by ref
-        /// </summary>
-        /// <param name="input"></param>
-        /// <param name="value"></param>
-        public static void SetZ(ref Vector3 input, float value)
-        {
-            input.y = value;
-        }
+        #endregion
         
         #endregion
     }
