@@ -139,7 +139,7 @@ namespace CippSharp.Core.Utils
         /// <returns></returns>
         public static bool IsSimilar (Vector3 a, Vector3 b, float tolerance = 0.0001f) 
         {
-            return Vector3.SqrMagnitude(a - b) < tolerance;
+            return Vector3.SqrMagnitude(a - b) <= tolerance;
         }
 		
         /// <summary>
