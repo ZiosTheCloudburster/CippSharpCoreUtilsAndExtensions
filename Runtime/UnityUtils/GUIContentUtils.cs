@@ -1,9 +1,16 @@
-﻿using System.Collections.Generic;
+﻿//
+// Author: Alessandro Salani (Cippo)
+//
+
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
 namespace CippSharp.Core.Utils
 {
+    /// <summary>
+    /// (as long as GUIContent is not under UnityEditor's jurisdiction...)
+    /// </summary>
     public static class GUIContentUtils
     {
         /// <summary>
