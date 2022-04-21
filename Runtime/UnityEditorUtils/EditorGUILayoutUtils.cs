@@ -10,7 +10,7 @@ using Object = UnityEngine.Object;
 
 namespace CippSharp.Core.EditorUtils
 {
-	public static partial class EditorGUILayoutUtils
+	public static class EditorGUILayoutUtils
 	{
 		/// <summary>
 		/// The name that I like for logs.
@@ -24,8 +24,6 @@ namespace CippSharp.Core.EditorUtils
 		private const string identifierLabelValue = "Local Identfier in File";
 		private const string selfLabelValue = "Self";
 		
-//		public const string k_BackingField = SerializedPropertyUtils.k_BackingField;
-
 		/// <summary>
 		/// UnityEditor's default name for inspected objects local identfier.
 		///
@@ -33,8 +31,7 @@ namespace CippSharp.Core.EditorUtils
 		/// </summary>
 		public const string LocalIdentfierInFilePropertyName = "m_LocalIdentfierInFile";
 		
-		
-		#region EditorGUILayout → Generic Object 
+		#region EditorGUILayout → GetLocalIdentfierInFile
 		
 		#region → GetLocalIdentfierInFile
 		

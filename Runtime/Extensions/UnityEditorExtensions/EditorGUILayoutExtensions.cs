@@ -7,6 +7,8 @@ namespace CippSharp.Core.EditorExtensions
 {
     public static class EditorGUILayoutExtensions
     {
+        #region EditorGUILayout → GetLocalIdentfierInFile
+        
         /// <summary>
         /// This works only in a custom editor OnEnable().
         /// It retrieves the m_LocalIdentfierInFile of an Object.
@@ -18,7 +20,11 @@ namespace CippSharp.Core.EditorExtensions
             return EditorGUILayoutUtils.GetLocalIdentfierInFile(target);
         }
 
-        #region Draw Serialized Object Infos
+        #endregion
+        
+        #region EditorGUILayout → Other Drawers
+        
+        #region EditorGUILayout → Draw SerializedObject Infos
 
         /// <summary>
         /// Draws the local identfier in file of the serialized object target.
@@ -76,6 +82,8 @@ namespace CippSharp.Core.EditorExtensions
         {
             EditorGUILayoutUtils.DrawSerializedObjectData(serializedObject, localIdentfierInFile);
         }  
+        
+        #endregion
         
         #endregion
     }
