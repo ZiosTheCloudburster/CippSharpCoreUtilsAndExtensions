@@ -193,7 +193,7 @@ namespace CippSharp.Core.Utils
         /// <param name="target"></param>
         /// <param name="childName">direct child</param>
         /// <returns></returns>
-        public static Transform FindDirectInactive(Transform target, string childName)
+        public static Transform FindInactive(Transform target, string childName)
         {
             for (int i = 0; i < target.childCount; i++)
             {
@@ -619,9 +619,9 @@ namespace CippSharp.Core.Utils
         /// Resets values of context transform while preserve children transforms.
         /// </summary>
         /// <param name="target"></param>
-        public static void ResetTransformPreservingChildrenTransforms(Transform target)
+        public static void ResetLocalsPreserveChildren(Transform target)
         {
-            ResetTransformPreservingChildrenTransformsInternal(target, false, false);
+            ResetLocalsPreserveChildrenInternal(target, false, false);
         }
 
         /// <summary>
@@ -630,9 +630,9 @@ namespace CippSharp.Core.Utils
         /// <param name="target"></param>
         /// <param name="editor"></param>
         /// <param name="debug"></param>
-        public static void ResetTransformPreservingChildrenTransforms(Transform target, bool editor, bool debug = false)
+        public static void ResetLocalsPreserveChildren(Transform target, bool editor, bool debug = false)
         {
-            ResetTransformPreservingChildrenTransformsInternal(target, editor, debug);
+            ResetLocalsPreserveChildrenInternal(target, editor, debug);
         }
 
         /// <summary>
@@ -641,14 +641,14 @@ namespace CippSharp.Core.Utils
         /// <param name="target"></param>
         /// <param name="editor"></param>
         /// <param name="debug"></param>
-        private static void ResetTransformPreservingChildrenTransformsInternal(Transform target, bool editor, bool debug = false)
+        private static void ResetLocalsPreserveChildrenInternal(Transform target, bool editor, bool debug = false)
         {
             //If target is null returns.
             if (target == null)
             {
                 if (debug)
                 {
-                    Debug.LogError(LogName + $"{nameof(ResetTransformPreservingChildrenTransformsInternal)} {nameof(target)} is null.");
+                    Debug.LogError(LogName + $"{nameof(ResetLocalsPreserveChildrenInternal)} {nameof(target)} is null.");
                 }
                 return;
             }
@@ -659,7 +659,7 @@ namespace CippSharp.Core.Utils
             {
                 if (debug)
                 {
-                    Debug.LogWarning(LogName + $"{nameof(ResetTransformPreservingChildrenTransformsInternal)} {nameof(target)} doesn't have children.");
+                    Debug.LogWarning(LogName + $"{nameof(ResetLocalsPreserveChildrenInternal)} {nameof(target)} doesn't have children.");
                 }
 
                 ResetLocals(target);
@@ -692,7 +692,7 @@ namespace CippSharp.Core.Utils
 #endif
             if (debug)
             {
-                Debug.Log(LogName + $"{nameof(ResetTransformPreservingChildrenTransformsInternal)} transform reset preserving children transform should be completed successful.", target);
+                Debug.Log(LogName + $"{nameof(ResetLocalsPreserveChildrenInternal)} transform reset preserving children transform should be completed successful.", target);
             }
         }
 
@@ -840,11 +840,11 @@ namespace CippSharp.Core.Utils
         /// </summary>
         /// <param name="command"></param>
         [MenuItem("CONTEXT/Transform/Reset (preserve children transform)")]
-        private static void ResetTransformPreservingChildrenTransforms(MenuCommand command)
+        private static void ResetLocalsPreserveChildren(MenuCommand command)
         {
             // The transform component can be extracted from the menu command using the context field.
             Transform transform = command.context as Transform;
-            ResetTransformPreservingChildrenTransformsInternal(transform, false, true);
+            ResetLocalsPreserveChildrenInternal(transform, false, true);
         }
         #endregion
 #endif

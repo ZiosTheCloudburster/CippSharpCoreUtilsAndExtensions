@@ -12,7 +12,22 @@ namespace CippSharp.Core.Extensions
 	
 	public static class TransformExtensions
 	{
-		#region Create Child
+		#region Transform → Brothers
+
+		/// <summary>
+		/// It finds a transform that is brother of the target.
+		/// </summary>
+		/// <returns></returns>
+		public static Transform FindBrother(this Transform target, string brotherName)
+		{
+			return TransformUtils.FindBrother(target, brotherName);
+		}
+
+		#endregion
+		
+		#region Transform → Children
+		
+		#region → Create Child
 
 		/// <summary>
 		/// Allow to create a child if it isn't found!
@@ -62,8 +77,69 @@ namespace CippSharp.Core.Extensions
 		}
 		
 		#endregion
+
+		#region → Contains
 		
-		#region Position
+		/// <summary>
+		/// Retrieve true if target is children.
+		/// </summary>
+		/// <param name="root"></param>
+		/// <param name="target"></param>
+		/// <returns></returns>
+		public static bool Contains(this Transform root, GameObject target)
+		{
+			return TransformUtils.Contains(root, target);
+		}
+		
+		/// <summary>
+		/// Retrieve true if target is children.
+		/// </summary>
+		/// <param name="root"></param>
+		/// <param name="target"></param>
+		/// <param name="debugContext"></param>
+		/// <returns></returns>
+		public static bool Contains(this Transform root, GameObject target, Object debugContext)
+		{
+			return TransformUtils.Contains(root, target, debugContext);
+		}
+		
+		#endregion
+		
+		#region → Find
+		
+		/// <summary>
+		/// Find a direct child even if he is inactive!
+		/// </summary>
+		/// <param name="transform"></param>
+		/// <param name="childName">direct child</param>
+		/// <returns></returns>
+		public static Transform FindInactive(this Transform transform, string childName)
+		{
+			return TransformUtils.FindInactive(transform, childName);
+		}
+		
+		#endregion
+
+		#region → Sorting
+
+		/// <summary>
+		/// Sort target children alphabetical.
+		/// </summary>
+		/// <param name="target"></param>
+		/// <param name="recursive"></param>
+		public static void SortChildrenAlphabetical(this Transform target, bool recursive = false)
+		{
+			TransformUtils.SortChildrenAlphabetical(target, recursive);
+		}
+
+		#endregion
+		
+		#endregion
+
+		
+		#region Transform → Methods
+		
+		#region → Position
 		
 		/// <summary>
 		/// Set local position X
@@ -127,7 +203,7 @@ namespace CippSharp.Core.Extensions
 		
 		#endregion
 
-		#region Rotation
+		#region → Rotation
 
 		/// <summary>
 		/// Set local euler angles X value
@@ -191,7 +267,7 @@ namespace CippSharp.Core.Extensions
 
 		#endregion
 		
-		#region Scale
+		#region → Scale
 
 		/// <summary>
 		/// Set Local Scale X
@@ -233,7 +309,7 @@ namespace CippSharp.Core.Extensions
         
 		#endregion
 
-		#region Resets
+		#region → Resets
 		
 		/// <summary>
 		/// Reset local position of a transform
@@ -281,7 +357,30 @@ namespace CippSharp.Core.Extensions
 		{
 			TransformUtils.CopyLocalsFrom(target, value);
 		}
+
+		/// <summary>
+		/// Resets values of context transform while preserve children transforms.
+		/// </summary>
+		/// <param name="target"></param>
+		public static void ResetLocalsPreserveChildren(this Transform target)
+		{
+			TransformUtils.ResetLocalsPreserveChildren(target);
+		}
 		
+		#endregion
+		
+		#region → Matrix
+
+		/// <summary>
+		/// Matrix TRS from Transform. Default is World Space.
+		/// </summary>
+		/// <param name="transform"></param>
+		/// <returns></returns>
+		public static Matrix4x4 TRS(this Transform transform)
+		{
+			return TransformUtils.TRS(transform);
+		} 
+
 		#endregion
 		
 		/// <summary>
@@ -304,41 +403,14 @@ namespace CippSharp.Core.Extensions
 		/// <returns></returns>
 		public static bool IsFacing(this Transform target, Transform other, float angle = 5.0f)
 		{
+			//if 'other' is named 'danger' and this returns true, watch out!
 			return TransformUtils.IsFacing(target, other, angle);
 		}
 
-		/// <summary>
-		/// It finds a transform that is brother of the target.
-		/// </summary>
-		/// <returns></returns>
-		public static Transform FindBrother(this Transform target, string brotherName)
-		{
-			return TransformUtils.FindBrother(target, brotherName);
-		}
+		#endregion
+
 		
-			
-		/// <summary>
-		/// Retrieve true if target is children.
-		/// </summary>
-		/// <param name="root"></param>
-		/// <param name="target"></param>
-		/// <returns></returns>
-		public static bool Contains(this Transform root, GameObject target)
-		{
-			return TransformUtils.Contains(root, target);
-		}
-		
-		/// <summary>
-		/// Retrieve true if target is children.
-		/// </summary>
-		/// <param name="root"></param>
-		/// <param name="target"></param>
-		/// <param name="debugContext"></param>
-		/// <returns></returns>
-		public static bool Contains(this Transform root, GameObject target, Object debugContext)
-		{
-			return TransformUtils.Contains(root, target, debugContext);
-		}
+		#region Transform → Path
 		
 		/// <summary>
 		/// Retrieve transform hierarchy path as string.
@@ -360,33 +432,6 @@ namespace CippSharp.Core.Extensions
 			return TransformUtils.GetTransformNestLevel(transform);
 		}
 		
-		#region Children Find
-		
-		/// <summary>
-		/// Find a direct children even if he is inactive!
-		/// </summary>
-		/// <param name="transform"></param>
-		/// <param name="childName">direct child</param>
-		/// <returns></returns>
-		public static Transform FindInactive(this Transform transform, string childName)
-		{
-			return TransformUtils.FindDirectInactive(transform, childName);
-		}
-		
-		#endregion
-
-		#region Matrix
-
-		/// <summary>
-		/// Matrix TRS from Transform. Default is World Space.
-		/// </summary>
-		/// <param name="transform"></param>
-		/// <returns></returns>
-		public static Matrix4x4 TRS(this Transform transform)
-		{
-			return TransformUtils.TRS(transform);
-		} 
-
-		#endregion
+		#endregion		
 	}
 }
