@@ -436,6 +436,8 @@ namespace CippSharp.Core.EditorUtils
 	    #endregion
 	    
 	    #region SerializedPropertyUtils → Iterators
+
+	    #region → For
 	    
 	    /// <summary>
 	    /// Invokes a callback during a for iteration of a serialized property array.
@@ -480,6 +482,8 @@ namespace CippSharp.Core.EditorUtils
 		    }
 	    }
 
+	    #endregion
+	    
 	    /// <summary>
 	    /// Similar to <see cref="EditorGUILayoutUtils.DrawInspector"/>, but only to iterate properties
 	    /// </summary>
@@ -504,6 +508,7 @@ namespace CippSharp.Core.EditorUtils
 	    }
 
 	    /// <summary>
+	    /// Similar to <see cref="EditorGUILayoutUtils.DrawInspector"/>, but only to iterate properties
 	    /// Yes, even nested ones.
 	    /// 
 	    /// REMEMBER: if you want to save the reference to a property during the iteration you need to use <see cref="SerializedProperty.Copy"/>
@@ -523,11 +528,157 @@ namespace CippSharp.Core.EditorUtils
 			    elementDelegate.Invoke(childProperty);
 		    }
 	    }
+	    
+	    #region → Iterates Properties with Attribute
+        
+        /// <summary>
+        /// Iterate all properties with attribute
+        /// </summary>
+        /// <param name="attributePredicate"></param>
+        /// <param name="delegate"></param>
+        /// <typeparam name="T"></typeparam>
+        public static void IteratePropertiesWithAttribute<T>(Predicate<T> attributePredicate, PropertiesWithAttributeDelegate @delegate) where T : PropertyAttribute
+        {
+            ArrayUtils.ForEach(SerializedObjectUtils.GetActiveEditorTargetsObjectsPairs(), Filter);
+            void Filter(KeyValuePair<Editor, List<Object>> pair)
+            {
+                foreach (var o in pair.Value)
+                {
+                    SerializedObject serializedObject = new SerializedObject(o);
+                    var properties = GetPropertiesWithAttribute(serializedObject, attributePredicate);
+                    if (ArrayUtils.IsNullOrEmpty(properties))
+                    {
+                        continue;
+                    }
+                    
+                    @delegate.Invoke(o, serializedObject, properties);
+                }
+            }
+        }
 
+        /// <summary>
+        /// Retrieve all properties with attribute
+        /// </summary>
+        /// <param name="attributePredicate"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static List<SerializedProperty> GetPropertiesWithAttribute<T>(Predicate<T> attributePredicate) where T : PropertyAttribute
+        {
+            List<SerializedProperty> properties = new List<SerializedProperty>();
+            ArrayUtils.ForEach(SerializedObjectUtils.GetActiveEditorTargetsObjectsPairs(), Filter);
+            void Filter(KeyValuePair<Editor, List<Object>> pair)
+            {
+                foreach (var o in pair.Value)
+                {
+                    SerializedObject serializedObject = new SerializedObject(o);
+                    properties.AddRange(GetPropertiesWithAttribute(serializedObject, attributePredicate));
+                }
+            }
+
+            return properties;
+        }
+
+        /// <summary>
+        /// Get properties with attribute T on target serialized object
+        /// </summary>
+        /// <param name="serializedObject"></param>
+        /// <param name="attributePredicate"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static List<SerializedProperty> GetPropertiesWithAttribute<T>(SerializedObject serializedObject, Predicate<T> attributePredicate) where T : PropertyAttribute
+        {
+            List<SerializedProperty> propertiesWithAttribute = new List<SerializedProperty>();
+            List<SerializedProperty> allProperties = GetAllProperties(serializedObject);
+            foreach (SerializedProperty property in allProperties)
+            {
+                if (HasAttribute(property, attributePredicate))
+                {
+                    propertiesWithAttribute.Add(property);
+                }
+
+                if (property.propertyType == SerializedPropertyType.Generic && (property.isExpanded && property.hasChildren))
+                {
+                    SearchInChildren(property, attributePredicate, ref propertiesWithAttribute);
+                }
+            }
+                
+            return propertiesWithAttribute;
+        }
+
+        /// <summary>
+        /// Iterate children properties recursively, but avoid not expanded or properties with no children
+        /// </summary>
+        /// <param name="property"></param>
+        /// <param name="attributePredicate"></param>
+        /// <param name="propertiesWithAttribute"></param>
+        private static void SearchInChildren<T>(SerializedProperty property, Predicate<T> attributePredicate, ref List<SerializedProperty> propertiesWithAttribute)  where T : PropertyAttribute
+        {
+            List<SerializedProperty> tmpPropertiesWithAttribute = new List<SerializedProperty>();
+            IterateAllChildren(property, OnIterate);
+            void OnIterate(SerializedProperty childProperty)
+            {
+                if (HasAttribute(childProperty, attributePredicate))
+                {
+                    //You MUST use child property.Copy() to save the iteration in current state.
+                    tmpPropertiesWithAttribute.Add(childProperty.Copy());
+                }
+            }
+            
+            propertiesWithAttribute.AddRange(tmpPropertiesWithAttribute);
+        }
+
+	    /// <summary>
+	    /// Has attribute?
+	    /// </summary>
+	    /// <param name="property"></param>
+	    /// <typeparam name="T"></typeparam>
+	    /// <returns></returns>
+	    public static bool HasAttribute<T>(SerializedProperty property) where T : PropertyAttribute
+	    {
+		    List<PropertyAttribute> attributes = GetAttributes(property);
+		    return !ArrayUtils.IsNullOrEmpty(attributes) && attributes.Any(a => a is T);
+	    }
+
+	    /// <summary>
+        /// Has attribute?
+        /// </summary>
+        /// <param name="property"></param>
+        /// <param name="attributePredicate"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool HasAttribute<T>(SerializedProperty property, Predicate<T> attributePredicate) where T : PropertyAttribute
+	    {
+		    List<PropertyAttribute> attributes = GetAttributes(property);
+		    return !ArrayUtils.IsNullOrEmpty(attributes) && attributes.Any(a => a is T attributeT && attributePredicate.Invoke(attributeT));
+        }
+	    
+	    /// <summary>
+	    /// Get PropertyAttributes
+	    /// </summary>
+	    /// <param name="property"></param>
+	    /// <returns></returns>
+	    public static List<PropertyAttribute> GetAttributes(SerializedProperty property)
+	    {
+		    try
+		    {
+			    FieldInfo fieldInfo = MirroredScriptAttributeUtility.GetFieldInfoFromProperty(property, out Type type);
+			    List<PropertyAttribute> attributes = MirroredScriptAttributeUtility.GetPropertyAttributes(fieldInfo);
+			    return attributes;
+		    }
+		    catch
+		    {
+			    //Ignored
+			    return null;
+		    }
+	    }
+
+        
+        #endregion
+	    
 	    #endregion
 	    
 	    #region SerializedPropertyUtils → Methods
-
+	    
 	    #region → Brother(s)
 	    
 	    /// <summary>

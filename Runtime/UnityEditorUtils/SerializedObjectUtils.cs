@@ -1,7 +1,7 @@
 ﻿#if UNITY_EDITOR
 using System.Collections.Generic;
 using UnityEditor;
-using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace CippSharp.Core.EditorUtils
 {
@@ -24,6 +24,11 @@ namespace CippSharp.Core.EditorUtils
         
         #endregion
 
+        
+        #region SerializedObjectUtils → Methods
+        
+        #region → Get
+        
 	    /// <summary>
 	    /// It retrieves all serialized properties from <param name="serializedObject"></param> iterator.
 	    /// </summary>
@@ -77,6 +82,27 @@ namespace CippSharp.Core.EditorUtils
 
             return allObjects;
         }
+        
+        /// <summary>
+        /// Get Pairs between active editor and edited objects
+        /// </summary>
+        /// <returns></returns>
+        public static KeyValuePair<Editor, List<Object>>[] GetActiveEditorTargetsObjectsPairs()
+        {
+            Editor[] editors = ActiveEditorTracker.sharedTracker.activeEditors;
+            KeyValuePair<Editor, List<Object>>[] pairs = new KeyValuePair<Editor, List<Object>>[editors.Length];
+            for (int i = 0; i < editors.Length; i++)
+            {
+                Editor editor = editors[i];
+                List<Object> editorTargets = GetTargetObjects(editor);
+                pairs[i] = new KeyValuePair<Editor, List<Object>>(editor, editorTargets);
+            }
+            return pairs;
+        }
+        
+        #endregion
+        
+        #endregion
     }
 }
 #endif

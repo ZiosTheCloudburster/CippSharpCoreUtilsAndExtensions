@@ -1,4 +1,5 @@
 ﻿#if UNITY_EDITOR
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -48,5 +49,15 @@ namespace CippSharp.Core.EditorUtils
     /// </summary>
     /// <param name="property">the property to retrieve the height</param>
     public delegate float GetPropertyHeightDelegate(SerializedProperty property);
+    
+    
+    /// <summary>
+    /// Properties with attribute delegate
+    /// </summary>
+    /// <param name="target"></param>
+    /// <param name="serializedObject"></param>
+    /// <param name="properties"></param>
+    public delegate void PropertiesWithAttributeDelegate(Object target, SerializedObject serializedObject, IList<SerializedProperty> properties);
+
 }
 #endif

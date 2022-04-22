@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEngine;
 
 namespace CippSharp.Core.EditorExtensions
 {
@@ -52,6 +53,33 @@ namespace CippSharp.Core.EditorExtensions
 		    return SerializedPropertyUtils.FindBrotherProperty(property, brotherPropertyName);
 	    }
 	    
+	    #endregion
+	    
+	    #region Has Attribute
+
+	    /// <summary>
+	    /// Has attribute?
+	    /// </summary>
+	    /// <param name="property"></param>
+	    /// <typeparam name="T"></typeparam>
+	    /// <returns></returns>
+	    public static bool HasAttribute<T>(this SerializedProperty property) where T : PropertyAttribute
+	    {
+		    return SerializedPropertyUtils.HasAttribute<T>(property);
+	    }
+
+	    /// <summary>
+	    /// Has attribute?
+	    /// </summary>
+	    /// <param name="property"></param>
+	    /// <param name="attributePredicate"></param>
+	    /// <typeparam name="T"></typeparam>
+	    /// <returns></returns>
+	    public static bool HasAttribute<T>(this SerializedProperty property, Predicate<T> attributePredicate) where T : PropertyAttribute
+	    {
+		    return SerializedPropertyUtils.HasAttribute(property, attributePredicate);
+	    }
+
 	    #endregion
 	    
 	    #region → Get Properties
