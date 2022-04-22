@@ -39,7 +39,7 @@ namespace CippSharp.Core.EditorUtils
         /// </summary>
         /// <param name="serializedObject"></param>
         /// <returns></returns>
-        public static SerializedProperty[] GetAllProperties(SerializedObject serializedObject)
+        public static List<SerializedProperty> GetAllProperties(SerializedObject serializedObject)
         {
             if (serializedObject == null)
             {
@@ -56,7 +56,7 @@ namespace CippSharp.Core.EditorUtils
                     properties.Add(iterator.Copy());
                 }
             }
-            return properties.ToArray();
+            return properties;
         }
         
         /// <summary>

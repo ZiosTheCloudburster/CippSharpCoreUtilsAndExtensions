@@ -20,12 +20,18 @@ namespace CippSharp.Core.EditorUtils
     
     /// <summary> 
     /// Custom Delegate to draw a serialized property
+    /// 
+    /// EditorGUILayout Context
     /// </summary>
     /// <param name="property"></param>
     public delegate void DrawSerializedPropertyDelegate(SerializedProperty property); 
     
     /// <summary>
-    /// Custom Delegate to draw a property in <see cref="EditorGUI"/>
+    /// Custom Delegate to draw a serialized property <see cref="EditorGUI"/>
+    ///
+    /// EditorGUI Context
+    ///
+    /// Purpose: use a single referred rect and a delegate to draw anything
     /// </summary>
     /// <param name="rect">the rect used and edited to draw the property</param>
     /// <param name="property">the property to draw</param>

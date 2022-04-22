@@ -24,7 +24,7 @@ namespace CippSharp.Core.EditorUtils
 	    /// </summary>
 	    /// <param name="serializedObject"></param>
 	    /// <returns></returns>
-	    public static SerializedProperty[] GetAllProperties(SerializedObject serializedObject)
+	    public static List<SerializedProperty> GetAllProperties(SerializedObject serializedObject)
 	    {
 		    return SerializedPropertyUtils.GetAllProperties(serializedObject);
 	    }

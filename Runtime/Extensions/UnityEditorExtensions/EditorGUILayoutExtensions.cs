@@ -1,10 +1,13 @@
 ﻿#if UNITY_EDITOR
-using CippSharp.Core.EditorUtils;
-using Object = UnityEngine.Object;
 using UnityEditor;
+using Object = UnityEngine.Object;
 
 namespace CippSharp.Core.EditorExtensions
 {
+    using EditorGUILayoutUtils = CippSharp.Core.EditorUtils.EditorGUILayoutUtils;
+    using DrawSerializedPropertyDelegate = CippSharp.Core.EditorUtils.DrawSerializedPropertyDelegate;
+    
+    
     public static class EditorGUILayoutExtensions
     {
         #region EditorGUILayout → GetLocalIdentfierInFile
@@ -21,6 +24,22 @@ namespace CippSharp.Core.EditorExtensions
         }
 
         #endregion
+        
+//        #region EditorGUILayout → Inspector & Property Drawers
+//
+//        /// <summary>
+//        /// 
+//        /// </summary>
+//        /// <param name="serializedObject"></param>
+//        /// <param name="drawPropertyDelegate"></param>
+//        /// <returns></returns>
+//        
+//        public static bool DrawInspector(this SerializedObject serializedObject, DrawSerializedPropertyDelegate drawPropertyDelegate)
+//        {
+//            return EditorGUILayoutUtils.DrawInspector(serializedObject, drawPropertyDelegate);
+//        }
+//
+//        #endregion
         
         #region EditorGUILayout → Other Drawers
         
