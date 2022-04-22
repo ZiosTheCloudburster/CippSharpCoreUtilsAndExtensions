@@ -39,13 +39,23 @@ namespace CippSharp.Core.EditorUtils
 		    return SerializedPropertyUtils.GetAllProperties(serializedObject);
 	    }
 
-	    /// <summary>
+        /// <summary>
+        /// Retrieve all targets objects from <see cref="Editor"/>
+        /// </summary>
+        /// <param name="editor"></param>
+        /// <returns></returns>
+        public static List<Object> GetTargetObjects(Editor editor)
+        {
+            return GetTargetObjects(editor.serializedObject);
+        }
+
+        /// <summary>
         /// Retrieve all targets objects from a <see cref="SerializedObject"/>
         /// </summary>
         /// <param name="serializedObject"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static List<Object> GetTargetObjects<T>(T serializedObject) where T : SerializedObject
+        public static List<Object> GetTargetObjects(SerializedObject serializedObject)
         {
             if (serializedObject == null)
             {
@@ -94,7 +104,7 @@ namespace CippSharp.Core.EditorUtils
             for (int i = 0; i < editors.Length; i++)
             {
                 Editor editor = editors[i];
-                List<Object> editorTargets = GetTargetObjects(editor);
+                var editorTargets = GetTargetObjects(editor.serializedObject);
                 pairs[i] = new KeyValuePair<Editor, List<Object>>(editor, editorTargets);
             }
             return pairs;
