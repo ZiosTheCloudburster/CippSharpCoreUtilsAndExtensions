@@ -52,7 +52,7 @@ namespace CippSharp.Core.EditorExtensions
 	    /// <returns></returns>
 	    public static List<T> ToValueList<T>(this SerializedProperty property)
 	    {
-		    return SerializedPropertyUtils.GetList<T>(property);
+		    return SerializedPropertyUtils.GetValueList<T>(property);
 	    }
 		
 		/// <summary>

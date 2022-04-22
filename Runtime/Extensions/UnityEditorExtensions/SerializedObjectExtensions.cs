@@ -1,11 +1,11 @@
 ﻿#if UNITY_EDITOR
+using CippSharp.Core.EditorUtils;
 using UnityEditor;
 
 namespace CippSharp.Core.EditorExtensions
 {
     using SerializedObjectUtils = CippSharp.Core.EditorUtils.SerializedObjectUtils;
-    using DrawSerializedPropertyDelegate = CippSharp.Core.EditorUtils.DrawSerializedPropertyDelegate;
-    
+
     public static class SerializedObjectExtensions
     {
         /// <summary>

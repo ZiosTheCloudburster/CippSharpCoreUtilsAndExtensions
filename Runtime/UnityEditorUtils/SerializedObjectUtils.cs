@@ -1,13 +1,16 @@
 ﻿#if UNITY_EDITOR
 using System.Collections.Generic;
-using CippSharp.Core.Utils;
 using UnityEditor;
 using UnityEngine;
 
 namespace CippSharp.Core.EditorUtils
 {
+    using ArrayUtils = CippSharp.Core.Utils.ArrayUtils;
+    
     public static class SerializedObjectUtils
     {
+        #region SerializedObjectUtils → Draw Inspector
+        
         /// <summary>
         /// Wrap of <see cref="EditorGUILayoutUtils.DrawInspector"/>
         /// </summary>
@@ -18,6 +21,8 @@ namespace CippSharp.Core.EditorUtils
         {
             return EditorGUILayoutUtils.DrawInspector(serializedObject, drawPropertyDelegate);
         }
+        
+        #endregion
 
 	    /// <summary>
 	    /// It retrieves all serialized properties from <param name="serializedObject"></param> iterator.
@@ -35,7 +40,7 @@ namespace CippSharp.Core.EditorUtils
         /// <param name="serializedObject"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static Object[] GetTargetObjects<T>(T serializedObject) where T : SerializedObject
+        public static List<Object> GetTargetObjects<T>(T serializedObject) where T : SerializedObject
         {
             if (serializedObject == null)
             {
@@ -52,7 +57,7 @@ namespace CippSharp.Core.EditorUtils
             
             if (ArrayUtils.IsNullOrEmpty(targets))
             {
-                return allObjects.ToArray();
+                return allObjects;
             }
             
             foreach (var o in targets)
@@ -70,7 +75,7 @@ namespace CippSharp.Core.EditorUtils
                 allObjects.Add(o);
             }
 
-            return allObjects.ToArray();
+            return allObjects;
         }
     }
 }

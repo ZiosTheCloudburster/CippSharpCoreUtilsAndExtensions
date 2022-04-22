@@ -568,32 +568,9 @@ namespace CippSharp.Core.EditorUtils
         #endregion
         
         #region → Draw HelpBox
-
-        /// <summary>
-        /// The height of an help box based on his text message.
-        /// </summary>
-        /// <param name="helpBoxMessage"></param>
-        /// <returns></returns>
-        public static float GetHelpBoxHeight(string helpBoxMessage)
-        {
-            return GetHelpBoxHeight(ref helpBoxMessage);
-        }
-        
-        /// <summary>
-        /// The height of an help box based on his text message.
-        /// </summary>
-        /// <param name="helpBoxMessage"></param>
-        /// <returns></returns>
-        public static float GetHelpBoxHeight(ref string helpBoxMessage)
-        {
-            GUIStyle style = EditorStyles.helpBox;
-            GUIContent descriptionWrapper = new GUIContent(helpBoxMessage);
-            return style.CalcHeight(descriptionWrapper, Screen.width);
-        }
         
         /// <summary>
         /// Draw an help box with the passed rect and text.
-        /// It doesn't matter about his height/resizing..
         /// </summary>
         /// <param name="rect"></param>
         /// <param name="text"></param>
@@ -602,52 +579,60 @@ namespace CippSharp.Core.EditorUtils
         {
             EditorGUI.HelpBox(rect, text, messageType);
         }
-        
+
         /// <summary>
         /// Draw an help box with the passed rect and text.
-        /// It doesn't matter about his height/resizing..
+        /// </summary>
+        /// <param name="rect"></param>
+        /// <param name="text"></param>
+        /// <param name="textHeight"></param>
+        /// <param name="messageType"></param>
+        public static void DrawHelpBox(Rect rect, string text, out float textHeight, MessageType messageType = MessageType.Info)
+        {
+            DrawHelpBox(ref rect, text, messageType);
+            textHeight = rect.height;
+        }
+        
+        /// <summary>
+        /// Draw an help box with referred rect and text.
+        /// Rect will be edited accordingly to text.
         /// </summary>
         /// <param name="rect"></param>
         /// <param name="text"></param>
         /// <param name="messageType"></param>
-        public static void DrawHelpBox(ref Rect rect, ref string text, ref MessageType messageType)
+        public static void DrawHelpBox(ref Rect rect, string text, MessageType messageType = MessageType.Info)
         {
+            rect.height = GetHelpBoxTextHeight(rect.width, text);
             EditorGUI.HelpBox(rect, text, messageType);
+            rect.y += rect.height + VerticalSpacing;
         }
 
         /// <summary>
-        /// Draws an help box with the passed rect and text.
+        /// The height of an help box based on his text message.
         /// </summary>
-        /// <param name="inputRect"></param>
         /// <param name="helpBoxMessage"></param>
-        /// <param name="textHeight">The computed height of the description.</param>
-        /// <param name="messageType"></param>
-        public static void DrawHelpBox(Rect inputRect, string helpBoxMessage, out float textHeight, MessageType messageType = MessageType.Info)
+        /// <returns></returns>
+        public static float GetHelpBoxTextHeight(string helpBoxMessage)
         {
-            DrawHelpBox(ref inputRect, ref helpBoxMessage, out textHeight, ref messageType);
+            return GetHelpBoxTextHeight(Screen.width, helpBoxMessage);
         }
 
         /// <summary>
-        /// Draws an help box with the passed rect and text.
+        /// The height of an help box based on his text message.
         /// </summary>
-        /// <param name="inputRect"></param>
+        /// <param name="width"></param>
         /// <param name="helpBoxMessage"></param>
-        /// <param name="textHeight">The computed height of the description.</param>
-        /// <param name="messageType"></param>
-        public static void DrawHelpBox(ref Rect inputRect, ref string helpBoxMessage, out float textHeight, ref MessageType messageType)
+        /// <returns></returns>
+        public static float GetHelpBoxTextHeight(float width, string helpBoxMessage)
         {
             GUIStyle style = EditorStyles.helpBox;
             GUIContent descriptionWrapper = new GUIContent(helpBoxMessage);
-            textHeight = style.CalcHeight(descriptionWrapper, inputRect.width);
-            inputRect.height = textHeight;
-            inputRect.y += LineHeight;
-            DrawHelpBox(ref inputRect, ref helpBoxMessage, ref messageType);
-            inputRect.y += textHeight;
+            return style.CalcHeight(descriptionWrapper, width);
         }
 
         #endregion
         
-        #region Draw Labels
+        #region → Draw Labels
         
         /// <summary>
         /// Draw a label with the passed text
@@ -656,19 +641,23 @@ namespace CippSharp.Core.EditorUtils
         /// <param name="text">doesn't draw if text is null or empty</param>
         public static void DrawHeader(Rect rect, string text)
         {
-            DrawHeader(ref rect, ref text);
+            DrawHeader(ref rect, text);
         }
 
         /// <summary>
         /// Draw a label with the passed text
+        ///
+        /// referred rect is edited
         /// </summary>
         /// <param name="rect"></param>
         /// <param name="text">doesn't draw if text is null or empty</param>
-        public static void DrawHeader(ref Rect rect, ref string text)
+        public static void DrawHeader(ref Rect rect, string text)
         {
             if (!string.IsNullOrEmpty(text))
             {
+                rect.height = SingleLineHeight;
                 EditorGUI.LabelField(rect, new GUIContent(text), EditorStyles.boldLabel);
+                rect.y += rect.height + VerticalSpacing;
             }
         }
 

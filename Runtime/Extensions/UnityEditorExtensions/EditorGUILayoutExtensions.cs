@@ -5,9 +5,8 @@ using Object = UnityEngine.Object;
 namespace CippSharp.Core.EditorExtensions
 {
     using EditorGUILayoutUtils = CippSharp.Core.EditorUtils.EditorGUILayoutUtils;
-    using DrawSerializedPropertyDelegate = CippSharp.Core.EditorUtils.DrawSerializedPropertyDelegate;
-    
-    
+
+
     public static class EditorGUILayoutExtensions
     {
         #region EditorGUILayout → GetLocalIdentfierInFile
