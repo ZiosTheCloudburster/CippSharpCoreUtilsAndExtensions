@@ -478,7 +478,7 @@ namespace CippSharp.Core.EditorUtils
 	    }
 
 	    /// <summary>
-	    /// Similar to <see cref="EditorGUIUtils.DrawInspector"/>, but only to iterate properties
+	    /// Similar to <see cref="EditorGUILayoutUtils.DrawInspector"/>, but only to iterate properties
 	    /// </summary>
 	    /// <param name="serializedObject"></param>
 	    /// <param name="elementDelegate"></param>

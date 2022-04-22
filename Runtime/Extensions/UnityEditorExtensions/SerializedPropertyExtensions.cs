@@ -3,37 +3,83 @@
 //
 
 #if UNITY_EDITOR
+using System;
 using System.Collections.Generic;
-using CippSharp.Core.EditorUtils;
 using UnityEditor;
 
 namespace CippSharp.Core.EditorExtensions
 {
+	using SerializedPropertyUtils = CippSharp.Core.EditorUtils.SerializedPropertyUtils;
+	
     public static class SerializedPropertyExtensions
     {
+	    #region SerializedPropertyUtils → Methods
+	    
+	    #region → Brother(s)
+
 	    /// <summary>
-	    /// It retrieves all serialized properties from <param name="serializedObject"></param> iterator.
+	    /// Has this property the target brother?
 	    /// </summary>
-	    /// <param name="serializedObject"></param>
+	    /// <param name="property"></param>
+	    /// <param name="brotherPropertyName"></param>
 	    /// <returns></returns>
-	    public static List<SerializedProperty> GetAllProperties(this SerializedObject serializedObject)
+	    public static bool HasBrotherProperty(this SerializedProperty property, string brotherPropertyName)
 	    {
-		    return SerializedPropertyUtils.GetAllProperties(serializedObject);
+		    return SerializedPropertyUtils.HasBrotherProperty(property, brotherPropertyName);
+	    }
+
+	    /// <summary>
+	    /// Has this property the target brother?
+	    /// Plus gives the brother property.
+	    /// </summary>
+	    /// <param name="property"></param>
+	    /// <param name="brotherPropertyName"></param>
+	    /// <param name="brotherProperty"></param>
+	    /// <returns></returns>
+	    public static bool HasBrotherProperty(this SerializedProperty property, string brotherPropertyName, out SerializedProperty brotherProperty)
+	    {
+		    return SerializedPropertyUtils.HasBrotherProperty(property, brotherPropertyName, out brotherProperty);
+	    }
+
+	    /// <summary>
+	    /// Retrieve a brother property of the interested one.
+	    /// </summary>
+	    /// <param name="property"></param>
+	    /// <param name="brotherPropertyName"></param>
+	    /// <returns></returns>
+	    public static SerializedProperty FindBrotherProperty(this SerializedProperty property, string brotherPropertyName)
+	    {
+		    return SerializedPropertyUtils.FindBrotherProperty(property, brotherPropertyName);
 	    }
 	    
-		/// <summary>
-		/// Retrieve a brother property of the interested one.
-		/// </summary>
-		/// <param name="property"></param>
-		/// <param name="brotherPropertyName"></param>
-		/// <returns></returns>
-	    public static SerializedProperty FindBrotherProperty(this SerializedProperty property, string brotherPropertyName)
-		{
-			return SerializedPropertyUtils.FindBrotherProperty(property, brotherPropertyName);
-		}
+	    #endregion
+	    
+	    #region → Get Properties
+	    
+	    //See SerializedObjectExtensions
+	    
+	    #endregion
+	    
+	    #endregion
+	    
+	    #region SerializedPropertyUtils → Cast
 	    
 	    /// <summary>
 	    /// Retrieve a serialized property that is an array as an array of serialized properties.
+	    ///
+	    /// USAGE: use this on properties that are arrays in inspector.
+	    /// </summary>
+	    /// <param name="property"></param>
+	    /// <returns></returns>
+	    public static List<SerializedProperty> ToList(this SerializedProperty property)
+	    {
+		    return SerializedPropertyUtils.ToList(property);
+	    }
+	    
+	    /// <summary>
+	    /// Retrieve a serialized property that is an array as an array of serialized properties.
+	    ///
+	    /// USAGE: use this on properties that are arrays in inspector.
 	    /// </summary>
 	    /// <param name="property"></param>
 	    /// <returns></returns>
@@ -41,8 +87,10 @@ namespace CippSharp.Core.EditorExtensions
 	    {
 		    return SerializedPropertyUtils.ToArray(property);
 	    }
-	 
-		#region Serialized Property generic Get Set of Values
+
+	    #endregion
+	    
+	    #region SerializedPropertyUtils → Generic
    
 	    /// <summary>
 	    /// Retrieve an array from serialized property array.
@@ -84,9 +132,9 @@ namespace CippSharp.Core.EditorExtensions
 		/// <param name="property"></param>
 		/// <param name="objects"></param>
 		/// <typeparam name="T"></typeparam>
-		public static void SetValues<T>(this SerializedProperty property, T[] objects)
+		public static void SetValues<T>(this SerializedProperty property, ICollection<T> objects)
 		{
-			SerializedPropertyUtils.SetValues<T>(property, objects);
+			SerializedPropertyUtils.SetValues(property, objects);
 		}
 		
 		/// <summary>
@@ -99,7 +147,7 @@ namespace CippSharp.Core.EditorExtensions
 		/// <returns></returns>
 		public static void SetValue<T>(this SerializedProperty property, string propertyRelative, T value)
 		{
-			SerializedPropertyUtils.SetValue<T>(property, propertyRelative, value);
+			SerializedPropertyUtils.SetValue(property, propertyRelative, value);
 		}
 		
 		/// <summary>
