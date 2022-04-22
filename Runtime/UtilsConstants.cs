@@ -1,12 +1,10 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-namespace CippSharp.Core
+namespace CippSharp.Core.Utils
 {
-    internal static class UtilsConstants
-    {
-        public const HideFlags underTheHoodFlags = HideFlags.DontSaveInEditor | HideFlags.HideInHierarchy | HideFlags.HideInInspector;
-        
+    public static class UtilsConstants
+    {        
         /// <summary>
         /// Unity's default name for script property.
         /// </summary>
@@ -23,7 +21,6 @@ namespace CippSharp.Core
         public const string ComponentSerializedPropertyName = "m_Component";
 
     
-        
         /// <summary>
         /// Unity's default name for enabled property.
         /// </summary>

@@ -1,5 +1,6 @@
 ﻿#if UNITY_EDITOR
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -9,11 +10,13 @@ using Object = UnityEngine.Object;
 
 namespace CippSharp.Core.EditorUtils
 {
+	using UtilsConstants = CippSharp.Core.Utils.UtilsConstants;
+	
 	using ArrayUtils = CippSharp.Core.Utils.ArrayUtils;
 	using StringUtils = CippSharp.Core.Utils.StringUtils;
 	using ReflectionUtils = CippSharp.Core.Utils.ReflectionUtils;
 	
-    public static partial class SerializedPropertyUtils
+    public static class SerializedPropertyUtils
     {
         /// <summary>
         /// Property Special Name suffix for BackingField Properties,
@@ -482,7 +485,7 @@ namespace CippSharp.Core.EditorUtils
 	    /// </summary>
 	    /// <param name="serializedObject"></param>
 	    /// <param name="elementDelegate"></param>
-	    public static void IterateAllProperties(SerializedObject serializedObject, DrawSerializedPropertyDelegate elementDelegate)
+	    public static void IterateAllProperties(SerializedObject serializedObject, SerializedPropertyAction elementDelegate)
 	    {
 		    if (serializedObject == null)
 		    {
@@ -497,6 +500,27 @@ namespace CippSharp.Core.EditorUtils
 			    {
 				    elementDelegate.Invoke(iterator.Copy());
 			    }
+		    }
+	    }
+
+	    /// <summary>
+	    /// Yes, even nested ones.
+	    /// 
+	    /// REMEMBER: if you want to save the reference to a property during the iteration you need to use <see cref="SerializedProperty.Copy"/>
+	    /// method. It's unity flow, follow it!
+	    /// </summary>
+	    public static void IterateAllChildren(SerializedProperty property, SerializedPropertyAction elementDelegate)
+	    {
+		    IEnumerator childrenEnumerator = property.GetEnumerator();
+		    while (childrenEnumerator.MoveNext())
+		    {
+			    SerializedProperty childProperty = childrenEnumerator.Current as SerializedProperty;
+			    if (childProperty == null)
+			    {
+				    continue;
+			    }
+                
+			    elementDelegate.Invoke(childProperty);
 		    }
 	    }
 

@@ -10,6 +10,8 @@ using Object = UnityEngine.Object;
 
 namespace CippSharp.Core.EditorUtils
 {
+	using UtilsConstants = CippSharp.Core.Utils.UtilsConstants;
+	
 	public static class EditorGUILayoutUtils
 	{
 		/// <summary>

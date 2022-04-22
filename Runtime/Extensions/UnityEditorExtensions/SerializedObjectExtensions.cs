@@ -7,7 +7,9 @@ namespace CippSharp.Core.EditorExtensions
 {
     using SerializedObjectUtils = CippSharp.Core.EditorUtils.SerializedObjectUtils;
     using SerializedPropertyUtils = CippSharp.Core.EditorUtils.SerializedPropertyUtils;
+    //Delegates
     using DrawSerializedPropertyDelegate = CippSharp.Core.EditorUtils.DrawSerializedPropertyDelegate;
+    using SerializedPropertyAction = CippSharp.Core.EditorUtils.SerializedPropertyAction;
 
     public static class SerializedObjectExtensions
     {
@@ -52,7 +54,7 @@ namespace CippSharp.Core.EditorExtensions
         /// </summary>
         /// <param name="serializedObject"></param>
         /// <param name="elementDelegate"></param>
-        public static void IterateAllProperties(this SerializedObject serializedObject, DrawSerializedPropertyDelegate elementDelegate)
+        public static void IterateAllProperties(this SerializedObject serializedObject, SerializedPropertyAction elementDelegate)
         {
             SerializedPropertyUtils.IterateAllProperties(serializedObject, elementDelegate);
         }

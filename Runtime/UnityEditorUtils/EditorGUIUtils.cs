@@ -9,7 +9,9 @@ using UnityEngine;
 
 namespace CippSharp.Core.EditorUtils
 {
-    public static partial class EditorGUIUtils
+    using UtilsConstants = CippSharp.Core.Utils.UtilsConstants;
+    
+    public static class EditorGUIUtils
     {
         /// <summary>
         /// Wrap of unity's default single line height.
