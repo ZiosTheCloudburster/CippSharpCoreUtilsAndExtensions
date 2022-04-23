@@ -154,7 +154,33 @@ namespace CippSharp.Core.Utils
         {
             return string.Concat(value, other);
         }
-           
+
+        #region → Contains and Equal
+        
+        /// <summary>
+        /// The value contains Any of the strings?
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="strings"></param>
+        /// <returns></returns>
+        public static bool ContainsAnyString(string value, string[] strings)
+        {
+            return strings.Any(value.Contains);
+        }
+
+        /// <summary>
+        /// Is any string == the other?
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="strings"></param>
+        /// <returns></returns>
+        public static bool EqualAnyString(string value, string[] strings)
+        {
+            return strings.Any(s => s == value);
+        }
+
+        #endregion
+        
         /// <summary>
         /// Encode bytes in UTF8 string
         /// </summary>
@@ -244,8 +270,37 @@ namespace CippSharp.Core.Utils
 
             return s;
         }
-        
+
+        #region → Split
           
+        /// <summary>
+        /// Perform the split only if it is possible, otherwise retrieve
+        /// an array of length 1 with value as element.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="strings"></param>
+        /// <param name="splitOptions"></param>
+        /// <returns></returns>
+        public static string[] CheckedSplit(string value, string[] strings, StringSplitOptions splitOptions)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return splitOptions.HasFlag(StringSplitOptions.RemoveEmptyEntries) ? new string[0] : new[] {value};
+            }
+
+            if (ArrayUtils.IsNullOrEmpty(strings))
+            {
+                return new[] {value};
+            }
+
+            if (!ContainsAnyString(value, strings))
+            {
+                return new[] {value};
+            }
+
+            return value.Split(strings, splitOptions);
+        }
+        
         /// <summary>
         /// Split string into chunks of specified length.
         /// </summary>
@@ -257,6 +312,9 @@ namespace CippSharp.Core.Utils
             return Enumerable.Range(0, str.Length / chunkSize)
                 .Select(i => str.Substring(i * chunkSize, chunkSize));
         }
+        
+        
+        #endregion
         
         /// <summary>
         /// Write a string array as flat string
