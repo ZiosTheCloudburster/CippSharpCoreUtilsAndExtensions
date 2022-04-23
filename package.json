@@ -1,0 +1,18 @@
+{
+  "name": "com.cippsharpcore.utilsandextensions",
+  "version": "1.0.2",
+  "displayName": "CippSharp.UtilsAndExtensions",
+  "description": "Utils and Extensions",
+  "unity":"2019.4",
+  "unityRelease":"10f1",  
+  "keywords": [
+    "cippsharp",
+    "utils",
+    "extensions"
+  ],
+  "license": "MIT",
+  "author" : {
+    "name" : "Alessandro Salani (Cippman)",    
+    "url" : "https://github.com/ZiosTheCloudburster/CippSharpCoreUtilsAndExtensions.git"
+  }  
+}
