@@ -86,6 +86,32 @@ namespace CippSharp.Core.Extensions
             return StringUtils.Add(value, other);
         }
         
+        #region → Contains and Equal
+        
+        /// <summary>
+        /// The value contains Any of the strings?
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="strings"></param>
+        /// <returns></returns>
+        public static bool ContainsAnyString(string value, string[] strings)
+        {
+            return StringUtils.ContainsAnyString(value, strings);
+        }
+
+        /// <summary>
+        /// Is any string == the other?
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="strings"></param>
+        /// <returns></returns>
+        public static bool EqualAnyString(string value, string[] strings)
+        {
+            return StringUtils.EqualAnyString(value, strings);
+        }
+
+        #endregion
+        
         /// <summary>
         /// If a string ends with number this code increments that
         /// </summary>
@@ -108,7 +134,8 @@ namespace CippSharp.Core.Extensions
             return StringUtils.MultiLineTab(value, tabLevel, maxCharactersPerLine);
         }
 
-            
+        #region → Split
+        
         /// <summary>
         /// Split string into chunks of specified length.
         /// </summary>
@@ -119,6 +146,8 @@ namespace CippSharp.Core.Extensions
         {
             return StringUtils.Split(str, chunkSize);
         }
+        
+        #endregion
         
         /// <summary>
         /// Write a string enumerable as flat string
