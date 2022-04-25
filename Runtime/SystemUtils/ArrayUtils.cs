@@ -299,7 +299,7 @@ namespace CippSharp.Core.Utils
         /// <typeparam name="T"></typeparam>
         public static IEnumerable<T> ForEach<T>(IEnumerable<T> enumerable, Action<T> action)
         {
-            ICollection<T> collection = (enumerable is ICollection<T> c) ? c : enumerable.ToArray();
+            ICollection<T> collection = enumerable is ICollection<T> c ? c : enumerable.ToArray();
             return ForEach(collection, action);
         }
         
