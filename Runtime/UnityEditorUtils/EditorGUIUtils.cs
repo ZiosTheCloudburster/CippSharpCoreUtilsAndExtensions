@@ -4,6 +4,8 @@
 #if UNITY_EDITOR
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using CippSharp.Core.Utils;
 using UnityEditor;
 using UnityEngine;
 
@@ -28,6 +30,10 @@ namespace CippSharp.Core.EditorUtils
         /// </summary>
         public static readonly float LineHeight = SingleLineHeight + VerticalSpacing;
         
+        /// <summary>
+        /// Invalid suffix for PopUps
+        /// </summary>
+        public const string InvalidSuffix = " (invalid)";
         
         
         #region EditorGUIUtils → Inspector & Property Drawers
@@ -663,6 +669,119 @@ namespace CippSharp.Core.EditorUtils
             }
         }
 
+        #endregion
+        
+        #region → Draw PopUp
+
+        /// <summary>
+        /// None Element is at options 0
+        /// Draws a popup of options for the string property.
+        /// Automatically calculates the index.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="stringProperty"></param>
+        /// <param name="options"></param>
+        public static bool DrawOptionsPopUpForStringProperty(Rect position, SerializedProperty stringProperty, List<string> options)
+        {
+            return DrawOptionsPopUpForStringProperty(position, stringProperty.displayName, stringProperty, options);
+        }
+
+        /// <summary>
+        /// None Element is at options 0
+        /// Draws a popup of options for the string property.
+        /// Automatically calculates the index.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="labelText"></param>
+        /// <param name="stringProperty"></param>
+        /// <param name="options"></param>
+        /// <returns></returns>
+        public static bool DrawOptionsPopUpForStringProperty(Rect position, string labelText, SerializedProperty stringProperty, List<string> options)
+        {
+            int index = -1;
+            string stringValue = stringProperty.stringValue;
+            if (string.IsNullOrEmpty(stringValue))
+            {
+                index = 0;
+            }
+            else if (ArrayUtils.Any(options, s => s == stringValue, out int tmpIndex))
+            {
+                index = tmpIndex;
+            }
+            else
+            {
+                index = options.Count;
+                options.Add($"{stringValue}{InvalidSuffix}");
+            }
+          
+            EditorGUI.BeginChangeCheck();
+            index = EditorGUI.Popup(position, labelText, index, options.ToArray());
+            
+            if (index == 0)
+            {
+                stringProperty.stringValue = string.Empty;
+            }
+            else if (ArrayUtils.IsValidIndex(index, options))
+            {
+                stringProperty.stringValue = options[index].Replace(InvalidSuffix, string.Empty);
+            }
+            else
+            {
+                stringProperty.stringValue = string.Empty;
+            }
+
+            bool endCheck = EditorGUI.EndChangeCheck();
+            return endCheck;
+        }
+
+        /// <summary>
+        /// None Element is at options 0
+        /// Draws a popup of options for the string property.
+        /// Automatically calculates the index.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="label"></param>
+        /// <param name="stringProperty"></param>
+        /// <param name="options"></param>
+        /// <returns></returns>
+        public static bool DrawOptionsPopUpForStringProperty(Rect position, GUIContent label, SerializedProperty stringProperty, List<GUIContent> options)
+        {
+            int index = -1;
+            string stringValue = stringProperty.stringValue;
+            if (string.IsNullOrEmpty(stringValue))
+            {
+                index = 0;
+            }
+            else if (ArrayUtils.Any(options, s => s.text == stringValue, out int tmpIndex))
+            {
+                index = tmpIndex;
+            }
+            else
+            {
+                index = options.Count;
+                options.Add(new GUIContent($"{stringValue}{InvalidSuffix}"));
+            }
+          
+            EditorGUI.BeginChangeCheck();
+            index = EditorGUI.Popup(position, label, index, options.ToArray());
+            
+            if (index == 0)
+            {
+                stringProperty.stringValue = string.Empty;
+            }
+            else if (ArrayUtils.IsValidIndex(index, options))
+            {
+                stringProperty.stringValue = options[index].text.Replace(InvalidSuffix, string.Empty);
+            }
+            else
+            {
+                stringProperty.stringValue = string.Empty;
+            }
+
+            bool endCheck = EditorGUI.EndChangeCheck();
+            return endCheck;
+        }
+        
         #endregion
         
         #endregion
