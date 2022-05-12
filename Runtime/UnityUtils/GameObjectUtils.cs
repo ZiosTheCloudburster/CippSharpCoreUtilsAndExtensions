@@ -119,6 +119,44 @@ namespace CippSharp.Core.Utils
 
 
         #endregion
+        
+        #region → Contains
+        
+        /// <summary>
+        /// Contains another GameObject?
+        /// </summary>
+        /// <param name="root"></param>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        public static bool Contains(GameObject root, GameObject target)
+        {
+            return TransformUtils.Contains(root != null ? root.transform : null, target);
+        }
+
+        /// <summary>
+        /// Contains any component of type T?
+        /// </summary>
+        /// <param name="root"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool Contains<T>(GameObject root)
+        {
+            return TransformUtils.Contains<T>(root != null ? root.transform : null);
+        }
+
+        /// <summary>
+        /// Contains specific component of type T?
+        /// </summary>
+        /// <param name="root"></param>
+        /// <param name="component"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool Contains<T>(GameObject root, T component)
+        {
+            return TransformUtils.Contains<T>(root != null ? root.transform : null, component);
+        }
+
+        #endregion
 
         #endregion
         
@@ -311,5 +349,7 @@ namespace CippSharp.Core.Utils
         }
         
         #endregion
+
+      
     }
 }

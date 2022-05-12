@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -126,6 +127,8 @@ namespace CippSharp.Core.Utils
 
         #region → Contains
 
+        #region → GameObject
+        
         /// <summary>
         /// Retrieve true if target is children, at any level
         /// </summary>
@@ -179,11 +182,73 @@ namespace CippSharp.Core.Utils
                 return false;
             }
 
-            Transform[] children = root.GetComponentsInChildren<Transform>(true);
-            return children.Any(child => child.gameObject == target);
+            return ContainsInternalRecursive(root, ref target);
+        }
+
+        /// <summary>
+        /// Recursive check to find if any child is 'target'
+        /// </summary>
+        /// <param name="root">must not be null</param>
+        /// <param name="target">must not be null</param>
+        /// <returns></returns>
+        private static bool ContainsInternalRecursive(Transform root, ref GameObject target)
+        {
+            if (root.gameObject == target)
+            {
+                return true;
+            }
+
+            int length = root.childCount;
+            if (length <= 0)
+            {
+                return false;
+            }
+            
+            for (int i = 0; i < length; i++)
+            {
+                var child = root.GetChild(i);
+                if (ContainsInternalRecursive(child, ref target))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        
+        #endregion
+
+        #endregion
+
+        #region → Component 
+
+        /// <summary>
+        /// Contains any component of type T?
+        /// </summary>
+        /// <param name="root"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool Contains<T>(Transform root)
+        {
+            T[] components = root != null ? root.GetComponentsInChildren<T>(true) : null;
+            return !ArrayUtils.IsNullOrEmpty(components);
+        }
+
+        /// <summary>
+        /// Contains specific component of type T?
+        /// </summary>
+        /// <param name="root"></param>
+        /// <param name="component"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool Contains<T>(Transform root, T component)
+        {
+            T[] components = root != null ? root.GetComponentsInChildren<T>(true) : null;
+            return !ArrayUtils.IsNullOrEmpty(components) && (components.FirstOrDefault(c => c.Equals(component)) != null);
         }
 
         #endregion
+        
         
         #region → Find
 

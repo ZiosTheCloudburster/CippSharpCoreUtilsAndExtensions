@@ -2,6 +2,9 @@
 - Y minor changes and bug fixing
 - X major changes
 
+## Version 1.1.1
+- added contain utils for GameObject and  Transform
+
 ## Version 1.1.0
 - moved ConfigurableJointExtensions script to CippSharp.Core.physics
 - edited array utils
