@@ -202,6 +202,29 @@ namespace CippSharp.Core.Extensions
 
         #endregion
 
+        #region → Element At
+
+        /// <summary>
+        /// Raw element at or default for arrays
+        /// </summary>
+        /// <param name="array"></param>
+        /// <param name="index"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T ElementAtOrDefault<T>(this T[] array, int index)
+        {
+            try
+            {
+                return array[index];
+            }
+            catch
+            {
+                return default(T);
+            }
+        }
+
+        #endregion
+        
         #region → Has Duplicates
         
         /// <summary>

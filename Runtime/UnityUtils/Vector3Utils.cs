@@ -202,6 +202,38 @@ namespace CippSharp.Core.Utils
             return center + RandomOnSphere(radius);
         }
         
+        /// <summary>
+        /// Randomize a Vector3 by passing an already cached random
+        /// </summary>
+        /// <param name="vector"></param>
+        /// <param name="random"></param>
+        /// <param name="xyz">filter</param>
+        public static void RandomizeVector(ref Vector3 vector, ref Vector3 random, params bool[] xyz)
+        {
+            if (xyz == null || xyz.Length <= 0)
+            {
+                vector.x = random.x;
+                vector.y = random.y;
+                vector.z = random.z;
+            }
+            else
+            {
+                int length = xyz.Length;
+                if (xyz[0])
+                {
+                    vector.x = random.x;
+                }
+                if (ArrayUtils.ElementAtOrDefault(xyz, 1))
+                {
+                    vector.y = random.y;
+                }
+                if (ArrayUtils.ElementAtOrDefault(xyz, 2))
+                {
+                    vector.z = random.z;
+                }
+            }
+        }
+        
         #endregion
 
         #region → Set
