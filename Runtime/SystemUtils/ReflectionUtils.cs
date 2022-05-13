@@ -843,8 +843,7 @@ namespace CippSharp.Core.Utils
         /// <param name="result"></param>
         /// <param name="flags"></param>
         /// <returns>success</returns>
-        public static bool TryInvokeMethod(object context, string methodName, out object result,
-            object[] parameters = null, BindingFlags flags = Common)
+        public static bool TryInvokeMethod(object context, string methodName, out object result, object[] parameters = null, BindingFlags flags = Common)
         {
             return TryCallMethod(context, methodName, out result, parameters, flags);
         }
