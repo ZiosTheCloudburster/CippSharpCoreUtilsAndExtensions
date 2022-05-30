@@ -50,7 +50,6 @@ namespace CippSharp.Core.Utils
         {
             return gameObject.GetComponent<T>();
         }
-        
          
         /// <summary>
         /// Generic Object as GameObject
@@ -121,6 +120,27 @@ namespace CippSharp.Core.Utils
         #endregion
         
         #region → Contains
+        
+        /// <summary>
+        /// This GameObject has a component T ?
+        /// </summary>
+        /// <param name="g"></param>
+        /// <param name="component"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool HasComponent<T>(GameObject g, out T component)
+        {
+            try
+            {
+                component = g.GetComponent<T>();
+                return component != null;
+            }
+            catch
+            {
+                component = default(T);
+                return false;
+            }
+        }
         
         /// <summary>
         /// Contains another GameObject?
