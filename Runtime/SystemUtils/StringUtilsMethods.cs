@@ -163,7 +163,7 @@ namespace CippSharp.Core.Utils
         /// <param name="value"></param>
         /// <param name="strings"></param>
         /// <returns></returns>
-        public static bool ContainsAnyString(string value, string[] strings)
+        public static bool ContainsAnyString(string value, ICollection<string> strings)
         {
             return strings.Any(value.Contains);
         }
@@ -174,7 +174,7 @@ namespace CippSharp.Core.Utils
         /// <param name="value"></param>
         /// <param name="strings"></param>
         /// <returns></returns>
-        public static bool EqualAnyString(string value, string[] strings)
+        public static bool EqualAnyString(string value, ICollection<string> strings)
         {
             return strings.Any(s => s == value);
         }
