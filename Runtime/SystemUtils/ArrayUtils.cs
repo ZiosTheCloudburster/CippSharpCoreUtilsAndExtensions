@@ -610,7 +610,18 @@ namespace CippSharp.Core.Utils
         {
             return index >= 0 && index < enumerable.Count();
         }
-        
+
+        /// <summary>
+        /// Returns true if the given index is in the range 0-count
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        public static bool IsValidIndex(int index, int count)
+        {
+            return index >= 0 && index < count;
+        }
+
         #endregion
         
         

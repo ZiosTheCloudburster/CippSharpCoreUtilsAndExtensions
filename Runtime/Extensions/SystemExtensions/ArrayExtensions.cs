@@ -381,6 +381,17 @@ namespace CippSharp.Core.Extensions
             return ArrayUtils.IsValidIndex(index, enumerable);
         }
         
+        /// <summary>
+        /// Returns true if the given index is in the range 0-count
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        public static bool IsValidIndex(this int index, int count)
+        {
+            return ArrayUtils.IsValidIndex(index, count);
+        }
+        
         #endregion
         
         
