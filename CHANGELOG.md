@@ -2,6 +2,9 @@
 - Y minor changes and bug fixing
 - X major changes
 
+## Version 1.2.1
+- added SetLayerRecursively and SetParentAndAlign
+
 ## Version 1.2.0
 - added contain utils for GameObject and  Transform
 - added element at or default specific for arrays
