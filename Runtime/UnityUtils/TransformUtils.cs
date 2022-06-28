@@ -764,6 +764,38 @@ namespace CippSharp.Core.Utils
         #endregion
         
         #endregion
+        
+        #region → Set Parent
+        
+        /// <summary>
+        ///  Sets the parent and gives the child the same layer and position.
+        /// </summary>
+        /// <param name="child">The Transform that should have a new parent set.</param>
+        /// <param name="parent">The Transform that the child should get as a parent and have position and layer copied from. If null, this function does nothing.</param>
+        public static void SetParentAndAlign(Transform child, Transform parent)
+        {
+            if ((UnityEngine.Object) parent == (UnityEngine.Object) null)
+            {
+                return;
+            }
+            child.SetParent(parent, false);
+            RectTransform transform = child as RectTransform;
+            if (transform != null)
+            {
+                transform.anchoredPosition = Vector2.zero;
+                Vector3 localPosition = transform.localPosition;
+                localPosition.z = 0.0f;
+                transform.localPosition = localPosition;
+            }
+            else
+            {
+                child.localPosition = Vector3.zero;
+            }
+            child.localRotation = Quaternion.identity;
+            child.localScale = Vector3.one;
+        }
+        
+        #endregion
    
         #region → Matrix
 
@@ -778,7 +810,6 @@ namespace CippSharp.Core.Utils
         } 
 
         #endregion
-        
         
         /// <summary>
         /// Returns true if target transform is in camera view.
@@ -812,6 +843,45 @@ namespace CippSharp.Core.Utils
  
             return myAngle < angle && yourAngle < angle;
         }
+        
+        #region → Set Layer
+
+        /// <summary>
+        /// Set layer recursively 
+        /// </summary>
+        /// <param name="parent"></param>
+        /// <param name="layerName"></param>
+        public static void SetLayerRecursively(Transform parent, string layerName)
+        {
+            SetLayerRecursively(parent, LayerMask.NameToLayer(layerName));
+        }
+
+        /// <summary>
+        /// Set layer recursively 
+        /// </summary>
+        /// <param name="parent"></param>
+        /// <param name="layer"></param>
+        public static void SetLayerRecursively(Transform parent, int layer)
+        {
+            if (parent == null)
+            {
+                return;
+            }
+
+            parent.gameObject.layer = layer;
+            int childCount = parent.childCount;
+            if (childCount <= 0)
+            {
+                return;
+            }
+
+            for (int i = 0; i < childCount; i++)
+            {
+                SetLayerRecursively(parent.GetChild(i), layer);
+            }
+        }
+        
+        #endregion
         
         #endregion
 

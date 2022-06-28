@@ -179,6 +179,38 @@ namespace CippSharp.Core.Utils
         #endregion
 
         #endregion
+
+        #region GameObject Transform Methods
+        
+        #region → Set Layer
+
+        public static void SetLayerRecursively(GameObject parent, string layerName)
+        {
+            SetLayerRecursively(parent, LayerMask.NameToLayer(layerName));
+        }
+
+        public static void SetLayerRecursively(GameObject parent, int layer)
+        {
+            TransformUtils.SetLayerRecursively(parent.transform, layer);
+        }
+
+        #endregion
+        
+        #region → Set Parent
+
+        /// <summary>
+        ///   <para>Sets the parent and gives the child the same layer and position.</para>
+        /// </summary>
+        /// <param name="child">The GameObject that should have a new parent set.</param>
+        /// <param name="parent">The GameObject that the child should get as a parent and have position and layer copied from. If null, this function does nothing.</param>
+        public static void SetParentAndAlign(GameObject child, GameObject parent)
+        {
+            TransformUtils.SetParentAndAlign(child.transform, parent.transform);
+        }
+
+        #endregion
+        
+        #endregion
         
         
         #region → AddComponent
