@@ -99,14 +99,13 @@ namespace CippSharp.Core.Utils
 
         #endregion
         
-        
         /// <summary>
         /// Retrieve the closest corner point to the target.
         /// </summary>
         /// <param name="rectTransform"></param>
         /// <param name="target"></param>
         /// <returns></returns>
-        public static CornerPoint ToCornerPoint(this RectTransform rectTransform, Vector3 target)
+        public static CornerPoint ToCornerPoint(RectTransform rectTransform, Vector3 target)
         {
             rectTransform.GetWorldCorners(corners);
 
@@ -122,5 +121,17 @@ namespace CippSharp.Core.Utils
 			
             return (CornerPoint)(int)-1;
         }
+
+//        #region → Alignment Presets
+//
+//        public static bool ChangeAlignment(RectTransform rectTransform)
+//        {
+//            RectTransform parent = rectTransform.parent as RectTransform;
+//
+//            
+//            return false;
+//        }
+//
+//        #endregion
     }
 }

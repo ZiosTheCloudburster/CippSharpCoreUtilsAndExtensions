@@ -651,6 +651,18 @@ namespace CippSharp.Core.Utils
             return list[index];
         }
 
+        /// <summary>
+        /// Retrieve a random element in collection
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T RandomElement<T>(ICollection<T> collection)
+        {
+            int index = UnityEngine.Random.Range(0, collection.Count);
+            return collection.ElementAt(index);
+        }
+
         #endregion
         
         #region → Remove Element

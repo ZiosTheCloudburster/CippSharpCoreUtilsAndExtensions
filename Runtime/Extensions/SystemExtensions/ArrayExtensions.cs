@@ -419,6 +419,17 @@ namespace CippSharp.Core.Extensions
             return ArrayUtils.RandomElement(list);
         }
 
+        /// <summary>
+        /// Retrieve a random element in collection
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T RandomElement<T>(this ICollection<T> collection)
+        {
+            return ArrayUtils.RandomElement(collection);
+        }
+
         #endregion
 
         #region → Remove Element
